@@ -1,0 +1,18 @@
+{
+  "name": "robot-md",
+  "displayName": "Robot-MD & OpenCastor",
+  "version": "0.1.0",
+  "description": "Bounded physical-AI robotics plugin: live SO-ARM101 telemetry console (MCP App), robot_doctor fault isolation, ROBOT.md workspace checks, and castor-hal guidance.",
+  "logo": "assets/logo.svg",
+  "author": {
+    "name": "Craig Merry",
+    "url": "https://craigmerry.com"
+  },
+  "homepage": "https://craigmerry.com/#demos",
+  "repository": "https://github.com/craigm26/antigravity-plugins",
+  "suggestedPrompts": [
+    "Open the Robot-MD Console side pane and check live SO-ARM101 bus telemetry",
+    "Run robot_doctor to check hardware reachability and servo voltages",
+    "Test whether (650, 0, 120) mm is inside the ROBOT.md workspace envelope"
+  ]
+}

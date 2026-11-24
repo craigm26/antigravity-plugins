@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "inspector": {
+      "command": "python3",
+      "args": ["${PLUGIN_ROOT}/server/server.py"]
+    }
+  }
+}

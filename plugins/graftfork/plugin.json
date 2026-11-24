@@ -1,0 +1,18 @@
+{
+  "name": "graftfork",
+  "displayName": "GraftFork",
+  "version": "0.1.0",
+  "description": "Test-gated upstream fork carry assistant: interactive Carry Inspector MCP App, local fork status analysis, and GraftFork CLI/MCP workflow skills.",
+  "logo": "assets/logo.svg",
+  "author": {
+    "name": "Craig Merry",
+    "url": "https://graftfork.com"
+  },
+  "homepage": "https://graftfork.com",
+  "repository": "https://github.com/craigm26/antigravity-plugins",
+  "suggestedPrompts": [
+    "Open the GraftFork Inspector side pane and check our fork carry status",
+    "Inspect my local git fork to see commits ahead of upstream and conflict risk",
+    "Check GraftFork's public benchmark results and test-gate rules"
+  ]
+}
