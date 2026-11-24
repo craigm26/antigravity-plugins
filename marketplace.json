@@ -1,0 +1,57 @@
+{
+  "name": "craigm26-antigravity-plugins",
+  "displayName": "Craig Merry's Antigravity Plugin Marketplace",
+  "owner": {
+    "name": "Craig Merry",
+    "url": "https://craigmerry.com"
+  },
+  "homepage": "https://craigm26.github.io/antigravity-plugins/",
+  "repository": "https://github.com/craigm26/antigravity-plugins",
+  "installCommand": "curl -fsSL https://raw.githubusercontent.com/craigm26/antigravity-plugins/main/install.sh | bash",
+  "plugins": [
+    {
+      "name": "robot-md",
+      "displayName": "Robot-MD & OpenCastor",
+      "version": "0.1.0",
+      "category": "Robotics & Physical AI",
+      "description": "Bounded physical-AI robotics plugin: live SO-ARM101 telemetry console (MCP App), robot_doctor fault isolation, ROBOT.md workspace checks, and castor-hal guidance.",
+      "source": "./plugins/robot-md",
+      "logo": "plugins/robot-md/assets/logo.svg",
+      "homepage": "https://craigmerry.com/#demos",
+      "mcpApps": ["Robot-MD Console (aux_pane, global)"],
+      "tools": [
+        "open_robot_console",
+        "robot_doctor",
+        "verify_workspace_bounds",
+        "fleet_estop",
+        "clear_estop"
+      ],
+      "suggestedPrompts": [
+        "Open the Robot-MD Console side pane and check live SO-ARM101 bus telemetry",
+        "Run robot_doctor to check hardware reachability and servo voltages",
+        "Test whether (650, 0, 120) mm is inside the ROBOT.md workspace envelope"
+      ]
+    },
+    {
+      "name": "graftfork",
+      "displayName": "GraftFork",
+      "version": "0.1.0",
+      "category": "Developer Tools",
+      "description": "Test-gated upstream fork carry assistant: interactive Carry Inspector MCP App, local fork status analysis, and GraftFork CLI/MCP workflow skills.",
+      "source": "./plugins/graftfork",
+      "logo": "plugins/graftfork/assets/logo.svg",
+      "homepage": "https://graftfork.com",
+      "mcpApps": ["GraftFork Inspector (aux_pane, global)"],
+      "tools": [
+        "open_graftfork_inspector",
+        "graft_inspect_local_repo",
+        "graft_benchmark_status"
+      ],
+      "suggestedPrompts": [
+        "Open the GraftFork Inspector side pane and check our fork carry status",
+        "Inspect my local git fork to see commits ahead of upstream and conflict risk",
+        "Check GraftFork's public benchmark results and test-gate rules"
+      ]
+    }
+  ]
+}

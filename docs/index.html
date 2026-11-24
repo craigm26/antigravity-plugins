@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Antigravity Plugin Marketplace · Craig Merry</title>
+<meta name="description" content="Public Antigravity plugin marketplace featuring Robot-MD & OpenCastor and GraftFork with interactive Side-Pane MCP Apps." />
+<style>
+  :root {
+    --bg: #0b0e11; --panel: #12161c; --card: #161b22; --ink: #e8edf2; --soft: #9aa6b2;
+    --line: #26303d; --accent: #38bdf8; --amber: #f59e0b; --orange: #e84c1e; --green: #22c55e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    background-image: radial-gradient(rgba(148,163,184,0.09) 1px, transparent 1px);
+    background-size: 24px 24px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 36px 24px 72px; }
+  header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 24px; }
+  .eyebrow { font-family: ui-monospace, Menlo, monospace; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+  h1 { margin: 8px 0 10px; font-size: clamp(1.9rem, 4vw, 2.7rem); letter-spacing: -0.025em; }
+  .lede { color: var(--soft); max-width: 62ch; margin: 0; font-size: 15.5px; }
+  .links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+    text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { background: var(--orange); border-color: var(--orange); color: #fff; }
+  .btn-primary:hover { opacity: 0.92; color: #fff; }
+  .install-bar {
+    margin: 26px 0; padding: 16px 18px; border-radius: 12px;
+    background: var(--panel); border: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .install-bar code { font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: #86efac; word-break: break-all; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+  .controls input {
+    flex: 1; min-width: 220px; padding: 9px 13px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink); font-size: 14px;
+  }
+  .chip {
+    padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--soft); font-size: 12.5px; font-weight: 600; cursor: pointer;
+  }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #0b0e11; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .card:hover { border-color: rgba(56,189,248,0.5); }
+  .card-head { display: flex; align-items: center; gap: 14px; }
+  .logo { width: 52px; height: 52px; border-radius: 12px; flex: none; }
+  .card-title { margin: 0; font-size: 19px; }
+  .cat { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--amber); text-transform: uppercase; letter-spacing: 0.08em; }
+  .desc { margin: 0; color: var(--soft); font-size: 14px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; padding: 3px 8px; border-radius: 6px; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.28); color: var(--accent); }
+  .prompts { margin: 0; padding-left: 18px; color: var(--soft); font-size: 13px; display: grid; gap: 4px; }
+  .cmd-box {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    padding: 8px 10px; border-radius: 8px; background: #0b0e11; border: 1px solid var(--line);
+    font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; color: #cbd5e1; overflow-x: auto;
+  }
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--soft); font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="eyebrow">Public Plugin Marketplace · Antigravity &amp; MCP Apps</div>
+        <h1>Craig Merry's Antigravity Plugins</h1>
+        <p class="lede">Installable bundles of skills, rules, MCP servers, and interactive Side-Pane MCP Apps for bounded physical-AI robotics and test-gated upstream fork carries.</p>
+      </div>
+      <div class="links">
+        <a class="btn" href="https://github.com/craigm26/antigravity-plugins">GitHub Repo ↗</a>
+        <a class="btn" href="./marketplace.json">marketplace.json ↗</a>
+        <a class="btn" href="https://craigmerry.com/#demos">Live Hardware Demos ↗</a>
+      </div>
+    </header>
+
+    <div class="install-bar">
+      <div>
+        <div class="eyebrow" style="margin-bottom:4px">Install All Plugins (One Command)</div>
+        <code id="install-all">curl -fsSL https://raw.githubusercontent.com/craigm26/antigravity-plugins/main/install.sh | bash</code>
+      </div>
+      <button class="btn btn-primary" onclick="copyText('install-all', this)">Copy Install Command</button>
+    </div>
+
+    <div class="controls">
+      <input id="search" type="search" placeholder="Search plugins, MCP tools, or capabilities..." />
+      <button class="chip active" data-cat="all">All</button>
+      <button class="chip" data-cat="Robotics & Physical AI">Robotics &amp; Physical AI</button>
+      <button class="chip" data-cat="Developer Tools">Developer Tools</button>
+    </div>
+
+    <div id="grid" class="grid"></div>
+
+    <footer>
+      <span>Built by <a href="https://craigmerry.com">Craig Merry</a> · Sacramento, CA</span>
+      <span>Registry: <a href="./marketplace.json">marketplace.json</a> · <a href="https://github.com/craigm26/antigravity-plugins/blob/main/.claude-plugin/marketplace.json">.claude-plugin/marketplace.json</a></span>
+    </footer>
+  </div>
+
+<script>
+let plugins = [];
+let activeCat = 'all';
+
+function copyText(id, btn) {
+  const txt = document.getElementById(id).textContent.trim();
+  navigator.clipboard.writeText(txt).then(() => {
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = old, 1400);
+  });
+}
+
+function render() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const grid = document.getElementById('grid');
+  const filtered = plugins.filter((p) => {
+    const catOk = activeCat === 'all' || p.category === activeCat;
+    const text = `${p.name} ${p.displayName} ${p.description} ${(p.tools || []).join(' ')}`.toLowerCase();
+    return catOk && (!q || text.includes(q));
+  });
+  grid.innerHTML = filtered.map((p) => {
+    const cmdId = `cmd-${p.name}`;
+    const cmd = `curl -fsSL https://raw.githubusercontent.com/craigm26/antigravity-plugins/main/install.sh | bash -s -- --plugin ${p.name}`;
+    return `
+      <article class="card">
+        <div class="card-head">
+          <img class="logo" src="./assets/${p.name}.svg" alt="${p.displayName} logo" />
+          <div>
+            <div class="cat">${p.category} · v${p.version}</div>
+            <h2 class="card-title">${p.displayName}</h2>
+          </div>
+        </div>
+        <p class="desc">${p.description}</p>
+        <div class="tags">
+          ${(p.mcpApps || []).map((a) => `<span class="tag">UI: ${a}</span>`).join('')}
+          ${(p.tools || []).map((t) => `<span class="tag">${t}</span>`).join('')}
+        </div>
+        <ul class="prompts">
+          ${(p.suggestedPrompts || []).map((s) => `<li>"${s}"</li>`).join('')}
+        </ul>
+        <div class="cmd-box">
+          <span id="${cmdId}">${cmd}</span>
+          <button class="btn" style="padding:4px 8px;font-size:11px" onclick="copyText('${cmdId}', this)">Copy</button>
+        </div>
+        <div class="links">
+          <a class="btn" href="${p.homepage}" target="_blank" rel="noopener">Project Page ↗</a>
+          <a class="btn" href="https://github.com/craigm26/antigravity-plugins/tree/main/plugins/${p.name}" target="_blank" rel="noopener">Plugin Source ↗</a>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+document.querySelectorAll('.chip').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    render();
+  });
+});
+document.getElementById('search').addEventListener('input', render);
+
+fetch('./marketplace.json')
+  .then((r) => r.json())
+  .then((d) => { plugins = d.plugins || []; render(); });
+</script>
+</body>
+</html>
