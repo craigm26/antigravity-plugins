@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="28" fill="#181715"/>
+  <!-- Main machined ring (270° C-arc + horizontal index bar) -->
+  <path d="M 96.5 41.5 A 40 40 0 1 0 104 64 H 70"
+        fill="none" stroke="#FFFDF9" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter"/>
+  <!-- Grafted moss upper-right quadrant bridge -->
+  <path d="M 64 24 A 40 40 0 0 1 92.3 35.7"
+        fill="none" stroke="#3FB27F" stroke-width="15" stroke-linecap="butt"/>
+  <!-- 45° diagonal graft kerf cut -->
+  <line x1="60" y1="14" x2="68" y2="38" stroke="#181715" stroke-width="4.5"/>
+  <!-- Vermilion zero-index encoder dot -->
+  <circle cx="64" cy="64" r="9.5" fill="#E85D2A"/>
+  <!-- Micro vernier calibration ticks -->
+  <rect x="62" y="9" width="4" height="7" rx="1.5" fill="#6E685E"/>
+  <rect x="62" y="112" width="4" height="7" rx="1.5" fill="#6E685E"/>
+  <rect x="9" y="62" width="7" height="4" rx="1.5" fill="#6E685E"/>
+  <rect x="112" y="62" width="7" height="4" rx="1.5" fill="#6E685E"/>
+</svg>

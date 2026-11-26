@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Graft Robotics Workbench</title>
+<style>
+  :root {
+    --paper:#F5F2EB; --card:#FFFDF9; --sand:#EAE4D7; --ink:#181715; --soft:#57524A;
+    --line:#DCD5C7; --moss:#1F6F4A; --moss-bg:#E3F2EA; --verm:#E85D2A; --red:#C82820; --red-bg:#FDE8E7;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:system-ui,-apple-system,sans-serif; padding:12px; font-size:13px; }
+  .hdr { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  .brand { display:flex; align-items:center; gap:8px; font-weight:700; font-size:15px; }
+  .brand span { font-weight:400; color:var(--soft); }
+  .pill { font-family:ui-monospace,monospace; font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--moss-bg); color:var(--moss); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:11px; margin-bottom:10px; }
+  h4 { margin:0 0 6px; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--soft); }
+  .row { display:flex; justify-content:space-between; align-items:center; padding:4px 7px; border-radius:7px; background:var(--paper); margin-bottom:4px; font-family:ui-monospace,monospace; font-size:11.5px; }
+  .ladder { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-top:6px; }
+  .lvl { padding:6px; border-radius:8px; background:var(--paper); border:1px solid var(--line); font-size:11px; text-align:center; }
+  .lvl.on { background:var(--moss-bg); border-color:var(--moss); color:var(--moss); font-weight:700; }
+  .bundle-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .b-chip { padding:7px 9px; border-radius:8px; background:var(--paper); border:1px solid var(--line); font-size:11.5px; }
+  .b-chip b { display:block; color:var(--ink); }
+  .b-chip span { color:var(--soft); font-size:10.5px; }
+  .note { font-size:11px; color:var(--soft); margin-top:8px; line-height:1.4; }
+</style>
+</head>
+<body>
+  <div class="hdr">
+    <div class="brand">
+      <svg width="24" height="24" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+        <rect width="128" height="128" rx="28" fill="#181715"/>
+        <path d="M 96.5 41.5 A 40 40 0 1 0 104 64 H 70" fill="none" stroke="#FFFDF9" stroke-width="15"/>
+        <path d="M 64 24 A 40 40 0 0 1 92.3 35.7" fill="none" stroke="#3FB27F" stroke-width="15"/>
+        <line x1="60" y1="14" x2="68" y2="38" stroke="#181715" stroke-width="4.5"/>
+        <circle cx="64" cy="64" r="9.5" fill="#E85D2A"/>
+      </svg>
+      graft <span>robotics · Workbench</span>
+    </div>
+    <span class="pill" id="modePill">MCP APP · READY</span>
+  </div>
+
+  <div class="card">
+    <h4>Progressive Trust &amp; Skill Ladder</h4>
+    <div class="ladder">
+      <div class="lvl on"><b>L0</b><br/>Observe</div>
+      <div class="lvl on"><b>L1</b><br/>30% Pick</div>
+      <div class="lvl"><b>L2</b><br/>60% Chain</div>
+      <div class="lvl"><b>L3</b><br/>Autonomous</div>
+    </div>
+    <div id="trustOut" class="note">Start Day 1 with small verified object picks before graduating to autonomous YAML skills.</div>
+  </div>
+
+  <div class="card">
+    <h4>Multi-Sensor World Model &amp; Mechanics</h4>
+    <div id="wmOut">
+      <div class="row"><span>Sensors: OAK-D Pro + LAN LiDAR + F/T + PLC</span><span>LIVE</span></div>
+      <div class="row"><span>Live .obj Mesh Physics: MuJoCo 4.0</span><span>READY</span></div>
+      <div class="row"><span>Materials: Cardboard ≤45N · 6061 276MPa</span><span>CHECKED</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>Client LLM &amp; Budget Bundles</h4>
+    <div class="bundle-grid">
+      <div class="b-chip"><b>Claude / Anthropic</b><span>MCP App + Plugin ($20+/mo)</span></div>
+      <div class="b-chip"><b>Google Antigravity</b><span>Side-Pane MCP App ($0-$20/mo)</span></div>
+      <div class="b-chip"><b>OpenAI Codex CLI</b><span>config.toml MCP ($20+/mo)</span></div>
+      <div class="b-chip"><b>On-Prem Air-Gapped</b><span>Offline Ollama Pi 5 ($0/mo)</span></div>
+    </div>
+    <div class="note"><strong>Safety boundary:</strong> Deterministic software pre-flight gate &amp; RFC 8785 SHA-256 audit log — never a replacement for hardwired ISO 13850 shop E-stops.</div>
+  </div>
+</body>
+</html>

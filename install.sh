@@ -21,7 +21,7 @@ if [[ -z "$PYTHON_BIN" ]]; then
 fi
 
 TMP_DIR=""
-cleanup() { [[ -n "$TMP_DIR" ]] && rm -rf "$TMP_DIR"; }
+cleanup() { [[ -n "$TMP_DIR" ]] && rm -rf "$TMP_DIR" || true; }
 trap cleanup EXIT
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)"
@@ -38,14 +38,14 @@ TARGET="${HOME}/.gemini/config/plugins"
 mkdir -p "$TARGET"
 
 if [[ "$PLUGIN" == "all" ]]; then
-  LIST=(robot-md graftfork)
+  LIST=(graft-robotics robot-md graftfork)
 else
   LIST=("$PLUGIN")
 fi
 
 for name in "${LIST[@]}"; do
   if [[ ! -d "$SRC_ROOT/plugins/$name" ]]; then
-    echo "Unknown plugin: $name (available: robot-md, graftfork)" >&2
+    echo "Unknown plugin: $name (available: graft-robotics, robot-md, graftfork)" >&2
     exit 1
   fi
   rm -rf "$TARGET/$name"

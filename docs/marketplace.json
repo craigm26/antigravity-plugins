@@ -10,6 +10,35 @@
   "installCommand": "curl -fsSL https://raw.githubusercontent.com/craigm26/antigravity-plugins/main/install.sh | bash",
   "plugins": [
     {
+      "name": "graft-robotics",
+      "displayName": "Graft Robotics",
+      "version": "0.3.0",
+      "category": "Robotics & Physical AI",
+      "description": "Pair Claude, Antigravity, Codex, Gemini, or an offline local LLM safely with physical robots: interactive Graft Workbench MCP App, multi-sensor LAN LiDAR mesh collision physics (MuJoCo 4.0), material crush/slip mechanics, progressive L0-L3 Trust Ladder, and client LLM/budget bundle generator.",
+      "source": "./plugins/graft-robotics",
+      "logo": "plugins/graft-robotics/assets/logo.svg",
+      "homepage": "https://graftrobotics.ai",
+      "mcpApps": ["Graft Robotics Workbench (aux_pane, global, Claude MCP App)"],
+      "tools": [
+        "open_graft_workbench",
+        "graft_world_model_status",
+        "graft_check_part_mechanics",
+        "graft_ingest_lan_lidar",
+        "graft_trust_ladder",
+        "graft_verify_envelope",
+        "graft_recommend_bundle",
+        "graft_list_skill_packs",
+        "graft_install_skill_pack",
+        "graft_discover_devices",
+        "graft_ingest_ambient_signal"
+      ],
+      "suggestedPrompts": [
+        "Open the Graft Robotics Workbench side pane and inspect our robot cell",
+        "Check whether Asimov-1 can safely lift the cardboard crate without crushing it",
+        "Generate an on-premises air-gapped bundle for a Raspberry Pi 5 + UR5e CNC cell"
+      ]
+    },
+    {
       "name": "robot-md",
       "displayName": "Robot-MD & OpenCastor",
       "version": "0.1.0",

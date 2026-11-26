@@ -1,0 +1,19 @@
+{
+  "name": "graft-robotics",
+  "displayName": "Graft Robotics",
+  "version": "0.3.0",
+  "description": "Bounded Physical AI & CNC Shop MCP App: interactive Graft Workbench side pane, multi-sensor LAN LiDAR mesh fusion, material crush/slip mechanics, progressive L0-L3 Trust Ladder, and client bundle generator for Claude, Antigravity, Codex, Gemini, and air-gapped on-premises robots.",
+  "logo": "assets/logo.svg",
+  "author": {
+    "name": "Craig Merry",
+    "url": "https://graftrobotics.ai"
+  },
+  "homepage": "https://graftrobotics.ai",
+  "repository": "https://github.com/craigm26/antigravity-plugins",
+  "suggestedPrompts": [
+    "Open the Graft Robotics Workbench side pane and inspect our robot cell",
+    "Check whether Asimov-1 can safely lift the cardboard crate without crushing it",
+    "Generate an on-premises air-gapped bundle for a Raspberry Pi 5 + UR5e CNC cell",
+    "Graduate Asimov-1 from Day-1 L1 small-object picks to L2 supervised tasks"
+  ]
+}
