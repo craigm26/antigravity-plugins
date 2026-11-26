@@ -194,7 +194,45 @@ def _build_bundle_recommendation(llm_provider: str, budget_tier: str, hardware_t
     uv_cmd = f"uv tool install robot-md-gateway {with_flags}"
     pip_cmd = "pip install robot-md-gateway " + " ".join(extra_pkgs)
 
-    if llm in ("onprem", "on-prem", "ollama", "airgapped", "local") or budget in ("airgapped", "zero", "$0", "0"):
+    if llm in ("apple_mlx", "mlx", "apple", "mac", "mac_mini", "apple-mlx"):
+        profile = "apple-mlx-shop-server"
+        monthly_llm_cost = "$0/mo recurring (~$599 Mac mini M4/M5 Apple Silicon LAN server)"
+        mlx_model = (
+            "mlx-community/gemma-4-26b-a4b-it-4bit"
+            if budget in ("production", "airgapped")
+            else "mlx-community/gemma-4-e4b-it-4bit"
+        )
+        llm_setup = [
+            "# On Mac mini M4/M5 (Apple Silicon Unified Memory, 100% air-gapped LAN server):",
+            "uv tool install mlx-lm",
+            f"mlx_lm.server --model {mlx_model} --host 0.0.0.0 --port 11434",
+            "# Optional Xcode / macOS agent bridge: xcrun mcpbridge",
+        ]
+        client_config = {
+            "mode": "offline_apple_mlx_lan",
+            "openai_compatible_url": "http://<mac-mini-lan-ip>:11434/v1",
+            "model": mlx_model,
+            "vlm_semantic_critic": "local_apple_mlx_veto_only",
+            "gateway_url": "http://<robot-pi5-ip>:8080",
+            "lan_sensors_ingest": "POST http://<robot-pi5-ip>:8791/sensors/ingest",
+        }
+    elif llm in ("google_gemma4", "gemma4", "gemma", "litert", "litert-lm", "google-local"):
+        profile = "google-gemma4-edge"
+        monthly_llm_cost = "$0/mo recurring (100% local Google Gemma 4 via Ollama / LiteRT-LM)"
+        gemma_model = "gemma4:26b-a4b-it-q4_K_M" if budget == "production" else "gemma4:e4b-it-qat"
+        llm_setup = [
+            f"ollama pull {gemma_model}   # native multimodal vision + tool-calling + VLM semantic critic",
+            "# Optional Google LiteRT-LM NPU/GPU edge acceleration: uv pip install ai-edge-litert",
+        ]
+        client_config = {
+            "mode": "offline_google_gemma4",
+            "ollama_url": "http://127.0.0.1:11434",
+            "model": gemma_model,
+            "vlm_semantic_critic": "local_gemma4_multimodal_veto_only",
+            "gateway_url": "http://127.0.0.1:8080",
+            "lan_sensors_ingest": "POST http://<robot-ip>:8791/sensors/ingest",
+        }
+    elif llm in ("onprem", "on-prem", "ollama", "airgapped", "local") or budget in ("airgapped", "zero", "$0", "0"):
         profile = "onprem-airgapped"
         monthly_llm_cost = "$0/mo (100% local Ollama on Pi 5 / Jetson Orin)"
         llm_setup = [
