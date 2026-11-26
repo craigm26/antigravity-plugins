@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "workbench": {
-      "command": "python3",
+      "command": "/home/craigm26/venvs/castor/bin/python",
       "args": ["${PLUGIN_ROOT}/server/server.py"]
     }
   }

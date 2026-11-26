@@ -1,7 +1,7 @@
 {
   "name": "graft-robotics",
   "displayName": "Graft Robotics",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Bounded Physical AI & CNC Shop MCP App: interactive Graft Workbench side pane, multi-sensor LAN LiDAR mesh fusion, material crush/slip mechanics, progressive L0-L3 Trust Ladder, and client bundle generator for Claude, Antigravity, Codex, Gemini, and air-gapped on-premises robots.",
   "logo": "assets/logo.svg",
   "author": {

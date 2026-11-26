@@ -40,33 +40,44 @@
       </svg>
       graft <span>robotics · Workbench</span>
     </div>
-    <span class="pill" id="modePill">MCP APP · READY</span>
+    <span class="pill" id="modePill">MCP APP v0.4 · READY</span>
   </div>
 
   <div class="card">
-    <h4>Progressive Trust &amp; Skill Ladder</h4>
+    <h4>Progressive Trust &amp; Skill Ladder (MCP Form Elicitation)</h4>
     <div class="ladder">
       <div class="lvl on"><b>L0</b><br/>Observe</div>
       <div class="lvl on"><b>L1</b><br/>30% Pick</div>
       <div class="lvl"><b>L2</b><br/>60% Chain</div>
       <div class="lvl"><b>L3</b><br/>Autonomous</div>
     </div>
-    <div id="trustOut" class="note">Start Day 1 with small verified object picks before graduating to autonomous YAML skills.</div>
+    <div id="trustOut" class="note">Promotions, semantic ratchets, and skill-pack installs use interactive <b>MCP Form Elicitations</b> (<code>ctx.elicit</code>) so operators confirm bounds &amp; work orders explicitly.</div>
   </div>
 
   <div class="card">
-    <h4>Multi-Sensor World Model &amp; Mechanics</h4>
+    <h4>Multi-Sensor World Model, Mechanics &amp; Semantic Ratchet</h4>
     <div id="wmOut">
-      <div class="row"><span>Sensors: OAK-D Pro + LAN LiDAR + F/T + PLC</span><span>LIVE</span></div>
-      <div class="row"><span>Live .obj Mesh Physics: MuJoCo 4.0</span><span>READY</span></div>
-      <div class="row"><span>Materials: Cardboard ≤45N · 6061 276MPa</span><span>CHECKED</span></div>
+      <div class="row"><span>Sensors: OAK-D Pro + LAN LiDAR + F/T + Wi-Fi CSI</span><span>LIVE</span></div>
+      <div class="row"><span>Rust Kernel: graft-core 0.1.0 + MuJoCo 4.0.1</span><span>2.11 µs</span></div>
+      <div class="row"><span>Semantic Guard: Provenance + Veto VLM + Ratchet</span><span>6/6 · 5/5</span></div>
+      <div class="row"><span>Hooks &amp; Resources: PreToolUse + 5 Live URIs</span><span>ARMED</span></div>
     </div>
   </div>
 
   <div class="card">
-    <h4>Client LLM &amp; Budget Bundles</h4>
+    <h4>Anthropic Plugin Playbooks (MCP Prompts + Slash Commands)</h4>
     <div class="bundle-grid">
-      <div class="b-chip"><b>Claude / Anthropic</b><span>MCP App + Plugin ($20+/mo)</span></div>
+      <div class="b-chip"><b>/shift-start-preflight</b><span>World model + sensors + E-stop</span></div>
+      <div class="b-chip"><b>/cnc-cell-onboarding</b><span>Guided L0→L1 skill pack setup</span></div>
+      <div class="b-chip"><b>/shadow-trial-audit</b><span>48-hr L0 receipt &amp; EV-03 verify</span></div>
+      <div class="b-chip"><b>/semantic-hazard-ratchet</b><span>Crystallize VLM veto → rule</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>Client LLM &amp; Budget Bundles (uv / uvx First)</h4>
+    <div class="bundle-grid">
+      <div class="b-chip"><b>Claude / Anthropic</b><span>MCP App + Elicitations + Hooks</span></div>
       <div class="b-chip"><b>Google Antigravity</b><span>Side-Pane MCP App ($0-$20/mo)</span></div>
       <div class="b-chip"><b>OpenAI Codex CLI</b><span>config.toml MCP ($20+/mo)</span></div>
       <div class="b-chip"><b>On-Prem Air-Gapped</b><span>Offline Ollama Pi 5 ($0/mo)</span></div>

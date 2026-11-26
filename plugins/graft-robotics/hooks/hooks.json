@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__graft-robotics__(graft_trust_ladder|graft_check_semantic_action|graft_ingest_lan_lidar)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"Graft Robotics Guardrail: Software pre-flight checks and MCP Elicitations never replace a certified hardwired ISO 13850 shop E-stop. Verify physical clearance and signed ROBOT.md bounds before authorizing motion.\"}}'"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "graft-robotics",
-  "version": "0.3.0",
-  "description": "Pair Claude, Antigravity, Codex, Gemini, or an offline local LLM safely with physical robots. Includes the Graft Robotics Workbench MCP App, multi-sensor LAN mesh collision checking (MuJoCo 4.0), material strength/slip mechanics, progressive L0-L3 Trust Ladder, and RFC 8785 bounded-embodiment verification.",
+  "version": "0.4.0",
+  "description": "Pair Claude, Antigravity, Codex, Gemini, or an offline local LLM safely with physical robots. Includes MCP App Workbench, Form Elicitations for L0-L3 & Semantic Ratchet approvals, 5 operational Playbooks (MCP Prompts + slash commands), live MCP Resources, PreToolUse safety hooks, Rust graft-core LAN LiDAR meshing, and RoboCurve SET-Sim rehearsal.",
   "author": {
     "name": "Craig Merry",
     "email": "craigm26@gmail.com",
@@ -9,5 +9,5 @@
   },
   "homepage": "https://graftrobotics.ai",
   "license": "Apache-2.0",
-  "keywords": ["robotics", "physical-ai", "mcp-app", "mujoco", "cnc", "bounded-embodiment", "robot-md", "cobot", "humanoid"]
+  "keywords": ["robotics", "physical-ai", "mcp-app", "elicitations", "playbooks", "mujoco", "cnc", "bounded-embodiment", "robot-md", "cobot", "humanoid"]
 }

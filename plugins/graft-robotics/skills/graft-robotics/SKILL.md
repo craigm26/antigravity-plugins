@@ -1,22 +1,26 @@
 ---
 name: graft-robotics
-description: Pair Claude, Antigravity, Codex, Gemini, or an offline local LLM safely with physical robots using Graft Robotics (graftrobotics.ai). Use when opening the Graft Robotics Workbench MCP App, inspecting multi-sensor world models and live LAN LiDAR obstacle meshes, checking material crush/slip/payload mechanics, advancing the L0-L3 Trust Ladder, or generating a client deployment bundle for any LLM tool and budget.
+description: Pair Claude, Antigravity, Codex, Gemini, or an offline local LLM safely with physical robots using Graft Robotics (graftrobotics.ai). Supports MCP App Workbench, MCP Form Elicitations for L0-L3 & Semantic Ratchet sign-off, 5 operational Playbooks (MCP Prompts + slash commands), live MCP Resources, Rust graft-core LAN LiDAR meshing, material mechanics, and RoboCurve SET-Sim rehearsal.
 ---
 
-# Graft Robotics Skill (`graftrobotics.ai`)
+# Graft Robotics Plugin (`v0.4.0`)
 
-Use the bundled `graft-robotics` MCP App tools whenever pairing an LLM with physical arms, industrial cobots, CNC tending cells, or humanoids:
+Graft puts a deterministic, default-deny software pre-flight boundary, live multi-sensor MuJoCo 4.0 World Model, Semantic-to-Deterministic Ratchet, and progressive `L0 -> L3` Trust Ladder between any frontier or local LLM and physical robots.
 
-- **`open_graft_workbench()`**: Opens the interactive **Graft Robotics Workbench** MCP App (`aux_pane` / `global` / Claude MCP App) showing live World Model state, networked LAN sensors & reconstructed MuJoCo 4.0 meshes, progressive `L0 -> L3` Trust Ladder, and a client LLM + budget bundle generator.
-- **`graft_world_model_status()`**: Reads live KNOWN/UNKNOWN entities, active LAN sensors, reconstructed `.obj` obstacle meshes, and Trust Ladder status (connects to a running local CNC cell runner on `:8791` when available).
-- **`graft_check_part_mechanics(actor, part_id, grip_force_n, bimanual, coolant_wet)`**: Runs deterministic payload, wrist torque, jaw width, material crush-limit, and dry vs. coolant-wet Coulomb friction slip checks BEFORE grasping.
-- **`graft_ingest_lan_lidar(sensor_id, x, y, z, half_size_m, mesh_id)`**: Ingests a point cloud from any networked shop PC LiDAR into a live `.obj` collision mesh and verifies swept paths in MuJoCo 4.0.
-- **`graft_trust_ladder(action, robot_id, operator)`**: Inspects, promotes (evidence-gated), or demotes a robot across `L0 OBSERVE -> L1 ATOMIC ASSIST -> L2 SUPERVISED CHAIN -> L3 AUTONOMOUS FROZEN`.
-- **`graft_verify_envelope(envelope_path)`**: Validates a physical Envelope 0.2 JSON file against the public RRF `bounded-embodiment` schema and computes its RFC 8785 JCS SHA-256 digest.
-- **`graft_recommend_bundle(llm_provider, budget_tier, hardware_target)`**: Outputs the exact install script and client config for Claude Desktop/Code, Antigravity, OpenAI Codex, Gemini CLI, or 100% offline air-gapped Ollama on Raspberry Pi 5 / Jetson.
+> **Mandatory Safety Boundary:** `robot-gate`, `graft-core`, `graft-watchdog`, `bounded-embodiment`, and `robot-md-gateway` are deterministic software enforcement and RFC 8785 / SHA-256 audit layers — **never** replacements for certified hardwired ISO 13850 shop E-stops or ISO 13849-1 safety relays.
 
-## Operating Principles
-1. **Use every sensor on the shop LAN:** Fuse local RGB-D, wrist F/T, PLC I/O, and any networked LiDAR into live collision meshes.
-2. **Respect physical mechanics:** Enforce known yield strength, crush limits (e.g. cardboard `45 N`), payload caps, and wet-coolant friction.
-3. **Earn trust incrementally:** Start Day 1 at `L0/L1` (small-object picks at 30% speed with HiTL approval) before graduating to autonomous frozen YAML skills.
-4. **Honest safety boundary:** Always pair software enforcement with hardwired ISO 13850 shop emergency stops.
+## Capabilities Included
+- **MCP App (`ui://graft-robotics/workbench.html`):** Interactive Workbench side-pane / inline UI (`open_graft_workbench`).
+- **MCP Form Elicitations (`ctx.elicit`):** Native operator confirmation forms before:
+  - Promoting a robot on the Trust Ladder (`graft_trust_ladder(action="promote")`)
+  - Resolving an `L1` Semantic Ratchet escalation on unlabeled objects (`graft_check_semantic_action`)
+  - Interactive Skill Pack scaffolding (`graft_install_skill_pack(pack_id="interactive")`)
+- **5 Operational Playbooks (MCP Prompts + Claude Code `/graft-robotics:*` commands):**
+  - `shift-start-preflight`
+  - `cnc-cell-onboarding`
+  - `shadow-trial-audit`
+  - `semantic-hazard-ratchet`
+  - `incident-estop-recovery`
+- **5 Live MCP Resources:** `ui://graft-robotics/workbench.html`, `graft://world-model/live`, `graft://trust-ladder/status`, `graft://benchmarks/latest`, `graft://safety/boundary-policy`.
+- **PreToolUse Guardrail Hook (`hooks/hooks.json`):** Reinforces ISO 13850 hardware E-stop & signed `ROBOT.md` checks before physical-robot MCP calls.
+- **14 MCP Tools:** World Model, LAN LiDAR `.obj` meshing (Rust `graft-core`), Material Crush/Slip Mechanics, Semantic Ratchet, Trust Ladder, Ambient Wi-Fi/Audio/Video Discovery, Envelope 0.2 Verifier, Job Skill Packs, `uv`-first Client Bundles, and RoboCurve SET-Sim Rehearsal (`graft_run_set_benchmark`).
