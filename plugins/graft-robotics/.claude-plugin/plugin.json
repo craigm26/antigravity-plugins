@@ -1,7 +1,7 @@
 {
   "name": "graft-robotics",
-  "version": "0.4.0",
-  "description": "Pair Claude, Antigravity, Codex, Gemini, or an offline local LLM safely with physical robots. Includes MCP App Workbench, Form Elicitations for L0-L3 & Semantic Ratchet approvals, 5 operational Playbooks (MCP Prompts + slash commands), live MCP Resources, PreToolUse safety hooks, Rust graft-core LAN LiDAR meshing, and RoboCurve SET-Sim rehearsal.",
+  "version": "0.4.1",
+  "description": "Pair Claude, Antigravity, Codex, Gemini, or an offline local LLM safely with physical robots. Includes 15 MCP tools, interactive MCP App Workbench, 4 Form Elicitations (ctx.elicit) for L0-L3, Semantic Ratchet & remote onboarding approvals, 6 operational Playbooks (MCP Prompts + slash commands), 5 live MCP Resources, PreToolUse safety hooks, 6-family Hand HAL, Rust graft-core LAN LiDAR meshing, and RoboCurve SET-Sim rehearsal.",
   "author": {
     "name": "Craig Merry",
     "email": "craigm26@gmail.com",

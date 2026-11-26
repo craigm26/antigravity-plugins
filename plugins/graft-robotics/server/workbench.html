@@ -120,12 +120,14 @@
   </div>
 
   <div class="card">
-    <div class="card-hdr"><h4>Anthropic Plugin Playbooks (MCP Prompts + Slash Commands)</h4></div>
+    <div class="card-hdr"><h4>Anthropic Plugin Playbooks (6 MCP Prompts + Slash Commands)</h4></div>
     <div class="bundle-grid">
       <div class="b-chip"><b>/shift-start-preflight</b><span>World model + sensors + E-stop</span></div>
       <div class="b-chip"><b>/cnc-cell-onboarding</b><span>Guided L0&rarr;L1 skill pack setup</span></div>
+      <div class="b-chip"><b>/remote-shop-onboarding</b><span>Zero-FDE kit + 6-family Hand HAL</span></div>
       <div class="b-chip"><b>/shadow-trial-audit</b><span>48-hr L0 receipt &amp; EV-03 verify</span></div>
       <div class="b-chip"><b>/semantic-hazard-ratchet</b><span>Crystallize VLM veto &rarr; rule</span></div>
+      <div class="b-chip"><b>/incident-estop-recovery</b><span>Post-fault isolation &amp; L1 re-arm</span></div>
     </div>
   </div>
 
@@ -252,7 +254,7 @@ async function syncFromCellConsole() {
     renderState(data);
   } catch (_err) {
     LIVE_CONNECTED = false;
-    document.getElementById('modePill').textContent = 'MCP APP v0.4 · OFFLINE MIRROR';
+    document.getElementById('modePill').textContent = 'MCP APP v0.4.1 · OFFLINE MIRROR';
     renderHold(HOLD_LATCHED, 'sim');
     renderInbox(FALLBACK_INBOX, 5);
   }

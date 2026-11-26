@@ -12,30 +12,37 @@
     {
       "name": "graft-robotics",
       "displayName": "Graft Robotics",
-      "version": "0.3.0",
+      "version": "0.4.1",
       "category": "Robotics & Physical AI",
-      "description": "Pair Claude, Antigravity, Codex, Gemini, or an offline local LLM safely with physical robots: interactive Graft Workbench MCP App, multi-sensor LAN LiDAR mesh collision physics (MuJoCo 4.0), material crush/slip mechanics, progressive L0-L3 Trust Ladder, and client LLM/budget bundle generator.",
+      "description": "Full Anthropic MCP & Claude Code robotics plugin (15 MCP tools): interactive Graft Workbench MCP App, 4 interactive MCP Form Elicitations (ctx.elicit), 6 operational Playbooks (MCP Prompts + slash commands), 5 live MCP Resources, PreToolUse safety guardrail hooks, 6-family Hand HAL, Rust graft-core + MuJoCo 4.0.1 LAN LiDAR mesh collision physics, Semantic-to-Deterministic Ratchet, material crush/slip mechanics, progressive L0-L3 Trust Ladder, RoboCurve SET-Sim rehearsal, and uv-first client LLM bundles.",
       "source": "./plugins/graft-robotics",
       "logo": "plugins/graft-robotics/assets/logo.svg",
       "homepage": "https://graftrobotics.ai",
-      "mcpApps": ["Graft Robotics Workbench (aux_pane, global, Claude MCP App)"],
+      "mcpApps": ["Graft Robotics Workbench (ui://graft-robotics/workbench.html, aux_pane, global, Claude MCP App)"],
+      "capabilities": ["mcp_app", "elicitations", "prompts_playbooks", "resources", "slash_commands", "pre_tool_use_hooks"],
       "tools": [
         "open_graft_workbench",
         "graft_world_model_status",
         "graft_check_part_mechanics",
         "graft_ingest_lan_lidar",
         "graft_trust_ladder",
+        "graft_check_semantic_action",
+        "graft_ratchet_semantic_tag",
         "graft_verify_envelope",
         "graft_recommend_bundle",
         "graft_list_skill_packs",
         "graft_install_skill_pack",
         "graft_discover_devices",
-        "graft_ingest_ambient_signal"
+        "graft_ingest_ambient_signal",
+        "graft_generate_onboarding_kit",
+        "graft_run_set_benchmark"
       ],
       "suggestedPrompts": [
+        "Run /remote-shop-onboarding to generate a zero-FDE CNC or shop-floor onboarding kit and 48h L0 shadow trial",
+        "Run /shift-start-preflight to inspect sensors, bounds, and world model freshness",
         "Open the Graft Robotics Workbench side pane and inspect our robot cell",
-        "Check whether Asimov-1 can safely lift the cardboard crate without crushing it",
-        "Generate an on-premises air-gapped bundle for a Raspberry Pi 5 + UR5e CNC cell"
+        "Run /semantic-hazard-ratchet to crystallize an unlabeled chemical hazard into a permanent deterministic rule",
+        "Generate a uv-first on-premises air-gapped bundle for a Raspberry Pi 5 + UR5e CNC cell"
       ]
     },
     {
