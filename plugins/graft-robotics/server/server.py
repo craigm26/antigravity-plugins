@@ -4,13 +4,14 @@
 Utilizes the FULL Anthropic MCP & Claude Code Plugin capability surface:
   1. MCP App (`ui://graft-robotics/workbench.html` · `text/html;profile=mcp-app`)
   2. MCP Elicitations (`ctx.elicit(...)` Form Mode with Pydantic schemas for human-in-the-loop
-     Trust Ladder promotion, L1 Semantic Ratchet confirmation, and interactive Skill Pack setup)
-  3. MCP Prompts / Playbooks (`@mcp.prompt()` — 5 operational robotics playbooks matching `commands/*.md`)
+     Trust Ladder promotion, L1 Semantic Ratchet confirmation, Skill Pack setup, and Remote Shop Onboarding)
+  3. MCP Prompts / Playbooks (`@mcp.prompt()` — 6 operational robotics playbooks matching `commands/*.md`)
   4. MCP Resources (`@mcp.resource()` — live World Model JSON, Trust Ladder JSON, Pi 5 Benchmarks JSON,
      and ISO 13850 Safety Boundary Markdown)
-  5. 14 MCP Tools covering Multi-Sensor World Model, LAN LiDAR `.obj` meshing (Rust `graft-core`),
-     Material Mechanics/Slip, Semantic-to-Deterministic Ratchet, L0-L3 Trust Ladder, Ambient Wi-Fi/Audio/Video
-     Device Discovery, Job Skill Packs, Turn-Key Client Bundles (`uv` first), and RoboCurve SET-Sim rehearsal.
+  5. 15 MCP Tools covering Remote Shop Onboarding Kit generation, Multi-Sensor World Model, LAN LiDAR `.obj`
+     meshing (Rust `graft-core`), Material Mechanics/Slip, Semantic-to-Deterministic Ratchet, L0-L3 Trust Ladder,
+     Ambient Wi-Fi/Audio/Video Device Discovery, Job Skill Packs, Turn-Key Client Bundles (`uv` first), and
+     RoboCurve SET-Sim rehearsal.
 
 Compatible with BOTH `mcp 1.x` (`FastMCP`) and `mcp 2.x` (`MCPServer`).
 """
@@ -99,6 +100,29 @@ class SkillPackOnboardingElicitation(BaseModel):
     start_in_l0_shadow_mode: bool = Field(
         default=True,
         description="Start in zero-motion L0 OBSERVE shadow mode before teaching datums (recommended)",
+    )
+
+
+class RemoteOnboardingElicitation(BaseModel):
+    user_type: str = Field(
+        default="cnc",
+        description="User track: cnc | lab | oem | benchtop | ehs",
+    )
+    setup_depth: str = Field(
+        default="quick",
+        description="Setup depth: quick (5-10 min safe defaults) | advanced (custom envelope, keep-outs & fleet signing)",
+    )
+    hand_family: str = Field(
+        default="parallel_2f",
+        description="Hand HAL family: parallel_2f | concentric_3f | dexterous_5f | vacuum_suction | magnetic_atc | bimanual_coordinated",
+    )
+    ai_tier: str = Field(
+        default="claude",
+        description="AI coach & runtime tier: claude | antigravity | codex | apple_mlx | google_gemma4 | ollama",
+    )
+    hardwired_estop_confirmed: bool = Field(
+        default=False,
+        description="Confirm a physical hardwired ISO 13850 red E-stop (and ISO 13849-1 door interlocks where applicable) is installed and tested. Graft software NEVER replaces hardware E-stops.",
     )
 
 
@@ -321,6 +345,458 @@ def _build_bundle_recommendation(llm_provider: str, budget_tier: str, hardware_t
     }
 
 
+_ONBOARD_PERSONAS: dict[str, dict[str, Any]] = {
+    "cnc": {
+        "label": "CNC / Machine Shop Owner",
+        "default_robot": "cnc-cobot-01",
+        "hardware_target": "ur5e_cnc",
+        "budget_tier": "starter",
+        "hal_driver": "castor_hal.drivers.ur_rtde",
+        "dof": 6,
+        "workspace_box_m": {"x": [-0.75, 0.75], "y": [0.05, 0.85], "z": [0.02, 0.90]},
+        "exclusions": [
+            {"name": "cnc_door_and_spindle_sweep", "min": [0.42, 0.45, 0.10], "max": [0.80, 0.90, 0.95]},
+            {"name": "operator_pendant_walkway", "min": [-0.80, -0.35, 0.00], "max": [0.80, 0.04, 1.80]},
+        ],
+        "max_tcp_velocity_mps": 0.25,
+        "max_contact_force_n": 45.0,
+        "coolant_wet_default": True,
+        "datums": ["handoff_nest", "cnc_door_clearance", "vise_jaw_datum"],
+        "plain_english_focus": "Plain-English Haas/Fanuc/Mazak tending with wet-coolant slip guard and automatic spindle/door keep-outs — zero robotics jargon.",
+    },
+    "lab": {
+        "label": "Robotics Research Lab / Eval Team",
+        "default_robot": "lab-eval-arm-01",
+        "hardware_target": "ur5e_mujoco",
+        "budget_tier": "starter",
+        "hal_driver": "castor_hal.drivers.mujoco_sim",
+        "dof": 6,
+        "workspace_box_m": {"x": [-0.65, 0.65], "y": [-0.55, 0.65], "z": [0.02, 0.85]},
+        "exclusions": [
+            {"name": "bench_operator_edge", "min": [-0.70, -0.65, 0.00], "max": [0.70, -0.45, 1.40]},
+            {"name": "camera_rig_overhead", "min": [-0.40, -0.20, 0.78], "max": [0.40, 0.40, 1.20]},
+        ],
+        "max_tcp_velocity_mps": 0.30,
+        "max_contact_force_n": 35.0,
+        "coolant_wet_default": False,
+        "datums": ["bench_origin", "eval_tray_datum", "drop_zone_datum"],
+        "plain_english_focus": "Reproducible uvx + EV-03 / SET-Sim benchmark workflow, Semantic-to-Deterministic Ratchet, and Python SDK integration.",
+    },
+    "oem": {
+        "label": "Integrator / OEM / ITAR Cell",
+        "default_robot": "oem-cell-01",
+        "hardware_target": "ur5e_cnc",
+        "budget_tier": "airgapped",
+        "hal_driver": "castor_hal.drivers.industrial_cell",
+        "dof": 6,
+        "workspace_box_m": {"x": [-0.85, 0.85], "y": [0.00, 0.95], "z": [0.02, 1.05]},
+        "exclusions": [
+            {"name": "plc_safety_curtain_plane", "min": [-0.90, -0.30, 0.00], "max": [0.90, 0.02, 2.00]},
+            {"name": "control_cabinet_keepout", "min": [-0.90, 0.45, 0.00], "max": [-0.55, 0.98, 1.40]},
+        ],
+        "max_tcp_velocity_mps": 0.25,
+        "max_contact_force_n": 50.0,
+        "coolant_wet_default": True,
+        "datums": ["fixture_zero", "interlock_clearance", "outbound_pallet"],
+        "plain_english_focus": "Air-gapped LAN inference (Apple MLX or local Gemma 4), Ed25519 key custody, fleet-reusable ROBOT.md v1.1 templates, and RFC 8785 audit chains.",
+    },
+    "benchtop": {
+        "label": "Maker / Benchtop / SO-ARM101 Builder",
+        "default_robot": "bob-soarm101",
+        "hardware_target": "so-arm101",
+        "budget_tier": "airgapped",
+        "hal_driver": "castor_hal.drivers.feetech_sts3215",
+        "dof": 6,
+        "workspace_box_m": {"x": [-0.28, 0.28], "y": [0.04, 0.34], "z": [0.01, 0.36]},
+        "exclusions": [
+            {"name": "laptop_and_keyboard_zone", "min": [-0.35, -0.35, 0.00], "max": [0.35, 0.03, 0.50]},
+            {"name": "table_surface_guard", "min": [-0.35, -0.35, -0.10], "max": [0.35, 0.40, 0.008]},
+        ],
+        "max_tcp_velocity_mps": 0.15,
+        "max_contact_force_n": 15.0,
+        "coolant_wet_default": False,
+        "datums": ["home_pad", "pickup_tray", "dropoff_tray"],
+        "plain_english_focus": "5-minute safe desktop sandbox with read-only Feetech servo probe, $0/mo local LLM option, and table-crash prevention.",
+    },
+    "ehs": {
+        "label": "EHS / Plant Safety & Insurance Auditor",
+        "default_robot": "ehs-audit-cell-01",
+        "hardware_target": "ur5e_cnc",
+        "budget_tier": "starter",
+        "hal_driver": "castor_hal.drivers.audit_shadow",
+        "dof": 6,
+        "workspace_box_m": {"x": [-0.70, 0.70], "y": [0.05, 0.80], "z": [0.02, 0.90]},
+        "exclusions": [
+            {"name": "human_egress_corridor", "min": [-0.80, -0.40, 0.00], "max": [0.80, 0.05, 2.00]},
+            {"name": "estop_access_clearance", "min": [0.45, -0.10, 0.00], "max": [0.80, 0.35, 1.60]},
+        ],
+        "max_tcp_velocity_mps": 0.20,
+        "max_contact_force_n": 30.0,
+        "coolant_wet_default": False,
+        "datums": ["audit_origin", "egress_boundary", "estop_station"],
+        "plain_english_focus": "Strict ISO 13850 & ISO 13849-1 hardware/software boundary clarity, fail-closed Envelope 0.2 verification, and offline-verifiable RFC 8785 SHA-256 receipts.",
+    },
+}
+
+_HAND_FAMILY_SPECS: dict[str, dict[str, Any]] = {
+    "parallel_2f": {
+        "label": "2-Finger Parallel Jaws (Robotiq 2F-85/140, Feetech SO-ARM101, SMC)",
+        "yaml_lines": [
+            "      name: primary_parallel_2f",
+            "      family: parallel_2f",
+            "      driver: castor_hal.end_effectors.parallel_2f",
+            "      max_payload_kg: {payload_kg}",
+            "      max_accel_mps2: 1.5",
+            "      slip_safety_factor: 2.0",
+            "      fragile_mode_cap_n: {fragile_n}",
+            "      fail_safe_on_software_hold: maintain_grasp",
+            "      tcp_offset_m: [0.0, 0.0, 0.14]",
+            "      stroke_mm: [0.0, 85.0]",
+            "      force_range_n: [5.0, {max_force_n}]",
+        ],
+    },
+    "concentric_3f": {
+        "label": "3-Jaw Concentric Chuck / Gripper (Schunk PZN-plus, Kitagawa/Haas)",
+        "yaml_lines": [
+            "      name: primary_concentric_3f",
+            "      family: concentric_3f",
+            "      driver: castor_hal.end_effectors.concentric_3f",
+            "      max_payload_kg: {payload_kg}",
+            "      max_accel_mps2: 1.2",
+            "      slip_safety_factor: 2.0",
+            "      fail_safe_on_software_hold: maintain_grasp",
+            "      tcp_offset_m: [0.0, 0.0, 0.16]",
+            "      bore_diameter_mm: [12.0, 110.0]",
+            "      jaw_force_range_n: [25.0, 1200.0]",
+            "      max_chuck_rpm: 0.0",
+            "      min_chuck_pressure_bar: 5.5",
+            "      require_drawbar_locked: true",
+            "      require_part_seated: true",
+            "      jaw_mass_kg: 0.25",
+            "      torque_safety_factor: 2.0",
+        ],
+    },
+    "dexterous_5f": {
+        "label": "5-Finger Dexterous Hand (Asimov 1, Shadow, Tesollo, Inspire, Ability)",
+        "yaml_lines": [
+            "      name: primary_dexterous_5f",
+            "      family: dexterous_5f",
+            "      driver: castor_hal.end_effectors.dexterous_5f",
+            "      max_payload_kg: {payload_kg}",
+            "      max_accel_mps2: 1.2",
+            "      slip_safety_factor: 2.0",
+            "      fragile_mode_cap_n: 15.0",
+            "      fail_safe_on_software_hold: maintain_grasp",
+            "      tcp_offset_m: [0.0, 0.0, 0.18]",
+            "      allowed_primitives: [pinch, tripod, power, hook, precision_cylindrical]",
+            "      max_total_crush_force_n: 35.0",
+            "      max_tendon_tension_n: 28.0",
+            "      max_tactile_normal_n: 12.0",
+            "      max_finger_temp_c: 55.0",
+            "      tactile_feedback_required: true",
+        ],
+    },
+    "vacuum_suction": {
+        "label": "Vacuum / Bernoulli Suction Cups (Piab, Schmalz, Festo)",
+        "yaml_lines": [
+            "      name: primary_vacuum_suction",
+            "      family: vacuum_suction",
+            "      driver: castor_hal.end_effectors.vacuum_suction",
+            "      max_payload_kg: {payload_kg}",
+            "      max_accel_mps2: 1.5",
+            "      slip_safety_factor: 2.0",
+            "      fail_safe_on_software_hold: maintain_grasp",
+            "      tcp_offset_m: [0.0, 0.0, 0.12]",
+            "      cup_count: 4",
+            "      effective_area_cm2: 19.6",
+            "      min_vacuum_kpa: -62.0",
+            "      slip_guard_drop_pct: 15.0",
+            "      pad_friction_coeff: 0.50",
+        ],
+    },
+    "magnetic_atc": {
+        "label": "Electromagnetic Gripper / Automatic Tool Changer (Schunk EGM, ATI QC)",
+        "yaml_lines": [
+            "      name: primary_magnetic_atc",
+            "      family: magnetic_atc",
+            "      driver: castor_hal.end_effectors.magnetic_atc",
+            "      max_payload_kg: {payload_kg}",
+            "      max_accel_mps2: 1.2",
+            "      slip_safety_factor: 2.0",
+            "      fail_safe_on_software_hold: maintain_grasp",
+            "      tcp_offset_m: [0.0, 0.0, 0.15]",
+            "      ferromagnetic_only: true",
+            "      max_holding_force_n: 480.0",
+            "      min_airgap_derating_mm: 0.5",
+            "      max_airgap_mm: 2.0",
+            "      require_lock_pin_verified: true",
+            "      require_spindle_zero_rpm: true",
+            "      require_flux_verified: true",
+            "      max_spindle_rpm_for_entry: 0.0",
+        ],
+    },
+    "bimanual_coordinated": {
+        "label": "Dual-Arm Coordinated Manipulation (Asimov 1, dual UR5e/FR5/YAM)",
+        "yaml_lines": [
+            "      name: primary_bimanual_coordinated",
+            "      family: bimanual_coordinated",
+            "      driver: castor_hal.end_effectors.bimanual_coordinated",
+            "      max_payload_kg: {payload_kg}",
+            "      max_accel_mps2: 1.0",
+            "      slip_safety_factor: 2.0",
+            "      fail_safe_on_software_hold: maintain_grasp",
+            "      tcp_offset_m: [0.0, 0.0, 0.15]",
+            "      max_combined_payload_kg: {payload_kg}",
+            "      max_single_arm_payload_kg: {single_arm_kg}",
+            "      allowed_load_split_ratio: [0.35, 0.65]",
+            "      min_inter_arm_clearance_m: 0.08",
+            "      max_opposing_squeeze_n: 40.0",
+            "      max_sync_skew_ms: 20.0",
+            "      allowed_coordinated_primitives: [bimanual_crate_lift, bimanual_carry, bimanual_handoff]",
+        ],
+    },
+}
+
+_AI_TIER_ALIASES: dict[str, str] = {
+    "claude": "claude",
+    "anthropic": "claude",
+    "antigravity": "antigravity",
+    "agy": "antigravity",
+    "gemini": "antigravity",
+    "codex": "codex",
+    "openai": "codex",
+    "apple_mlx": "apple_mlx",
+    "mlx": "apple_mlx",
+    "apple": "apple_mlx",
+    "mac": "apple_mlx",
+    "google_gemma4": "google_gemma4",
+    "gemma4": "google_gemma4",
+    "gemma": "google_gemma4",
+    "ollama": "ollama",
+    "local": "ollama",
+    "onprem": "ollama",
+    "airgapped": "apple_mlx",
+}
+
+
+def _build_onboarding_kit(
+    *,
+    user_type: str,
+    setup_depth: str,
+    hand_family: str,
+    ai_tier: str,
+    organization: str,
+    robot_name: str,
+    hardwired_estop_confirmed: bool,
+) -> dict[str, Any]:
+    ut = (user_type or "cnc").strip().lower()
+    depth = (setup_depth or "quick").strip().lower()
+    hf = (hand_family or "parallel_2f").strip().lower()
+    ai_norm = _AI_TIER_ALIASES.get((ai_tier or "claude").strip().lower(), "claude")
+
+    if ut not in _ONBOARD_PERSONAS:
+        raise ValueError(f"Unsupported user_type '{user_type}'. Expected one of: {sorted(_ONBOARD_PERSONAS)}")
+    if depth not in ("quick", "advanced"):
+        raise ValueError(f"Unsupported setup_depth '{setup_depth}'. Expected 'quick' or 'advanced'.")
+    if hf not in _HAND_FAMILY_SPECS:
+        raise ValueError(f"Unsupported hand_family '{hand_family}'. Expected one of: {sorted(_HAND_FAMILY_SPECS)}")
+
+    persona = _ONBOARD_PERSONAS[ut]
+    hand = _HAND_FAMILY_SPECS[hf]
+    rname = (robot_name or persona["default_robot"]).strip()
+    org = (organization or "My Shop Cell").strip()
+
+    # Scale payload & force conservatively for benchtop vs industrial
+    payload_kg = 0.5 if ut == "benchtop" else (10.0 if hf == "bimanual_coordinated" else 5.0)
+    single_arm_kg = round(payload_kg * 0.6, 2)
+    fragile_n = 10.0 if ut == "benchtop" else 25.0
+    max_force_n = 25.0 if ut == "benchtop" else 120.0
+    max_vel = persona["max_tcp_velocity_mps"] if depth == "advanced" else round(persona["max_tcp_velocity_mps"] * 0.85, 2)
+    max_contact = persona["max_contact_force_n"] if depth == "advanced" else round(persona["max_contact_force_n"] * 0.85, 1)
+
+    ws = persona["workspace_box_m"]
+    ex_lines: list[str] = []
+    for ex in persona["exclusions"]:
+        ex_lines.extend(
+            [
+                f"      - name: {ex['name']}",
+                f"        min: {json.dumps(ex['min'])}",
+                f"        max: {json.dumps(ex['max'])}",
+            ]
+        )
+
+    ee_lines = [
+        line.format(
+            payload_kg=payload_kg,
+            single_arm_kg=single_arm_kg,
+            fragile_n=fragile_n,
+            max_force_n=max_force_n,
+        )
+        for line in hand["yaml_lines"]
+    ]
+
+    estop_yaml = "true" if hardwired_estop_confirmed else "false"
+    coolant_yaml = "true" if persona["coolant_wet_default"] else "false"
+    airgap_yaml = "true" if (ut == "oem" or ai_norm in ("apple_mlx", "google_gemma4", "ollama")) else "false"
+    datums_yaml = ", ".join(persona["datums"])
+
+    robot_md_v1_1 = "\n".join(
+        [
+            "---",
+            'schema_version: "1.1"',
+            f"organization: {json.dumps(org)}",
+            f"onboarding_track: {ut}",
+            f"setup_depth: {depth}",
+            f"ai_tier: {ai_norm}",
+            f"airgapped_local_only: {airgap_yaml}",
+            "trust_ladder:",
+            "  starting_level: L0_OBSERVE",
+            "  speed_cap_pct_l0: 0",
+            "  speed_cap_pct_l1: 30",
+            "  require_operator_elicitation_to_promote: true",
+            "safety_boundary:",
+            "  software_enforcement_only: true",
+            f"  hardwired_iso_13850_estop_confirmed: {estop_yaml}",
+            "  iso_13849_1_door_interlocks_unmodified: true",
+            '  disclaimer: "Deterministic default-deny software pre-flight gate & RFC 8785 SHA-256 audit log — NEVER a replacement for certified hardwired ISO 13850 E-stops or ISO 13849-1 safety relays."',
+            "embodiments:",
+            f"  {rname}:",
+            f"    hal_driver: {persona['hal_driver']}",
+            f"    dof: {persona['dof']}",
+            "    workspace_box_m:",
+            f"      x: {json.dumps(ws['x'])}",
+            f"      y: {json.dumps(ws['y'])}",
+            f"      z: {json.dumps(ws['z'])}",
+            "    exclusion_boxes_m:",
+            *ex_lines,
+            f"    max_tcp_velocity_mps: {max_vel}",
+            f"    max_contact_force_n: {max_contact}",
+            f"    coolant_wet_guard: {coolant_yaml}",
+            "    allowed_tools:",
+            "      - status.report",
+            "      - arm.state",
+            "      - arm.move_bounded",
+            "      - arm.estop",
+            "      - arm.estop.clear",
+            "      - tool.grip",
+            "      - tool.release",
+            "    end_effector:",
+            *ee_lines,
+            "---",
+            "",
+            f"# {org} — `{rname}` (`ROBOT.md` v1.1)",
+            "",
+            f"- **Track:** `{ut}` ({persona['label']}) · **Depth:** `{depth}`",
+            f"- **Hand HAL Family:** `{hf}` ({hand['label']})",
+            f"- **Starting Autonomy Tier:** `L0_OBSERVE` (0% speed/force cap — zero physical motion)",
+            f"- **Datums to Teach After 48h L0 Shadow Trial:** `{datums_yaml}`",
+            "- **Hardware Safety Rule:** Pair with a tested, hardwired **ISO 13850** red mushroom E-stop and intact **ISO 13849-1** door interlocks before ever promoting past `L0_OBSERVE`.",
+            "",
+        ]
+    )
+
+    bundle = _build_bundle_recommendation(
+        llm_provider=ai_norm,
+        budget_tier=persona["budget_tier"],
+        hardware_target=persona["hardware_target"],
+    )
+    cli_onboard_cmd = (
+        f"uvx --from robot-gate robot-gate onboard --persona {ut} --mode {depth} "
+        f"--hand-family {hf} --ai-tier {ai_norm} --robot-name {rname} --out ./{rname}-cell"
+    )
+    install_commands = [
+        bundle["install_commands"][0],
+        cli_onboard_cmd,
+        f"# Start local Graft Cell Console in zero-motion L0 OBSERVE on :8788:",
+        f"uv run robot-gate serve --manifest ./{rname}-cell/ROBOT.md --mode sim --port 8788",
+        *bundle["install_commands"][1:],
+    ]
+
+    llm_coach_instructions = (
+        f"You are the Graft Robotics Remote Shop Onboarding Specialist coaching {org} "
+        f"(track=`{ut}`: {persona['label']}, depth=`{depth}`, robot=`{rname}`, hand=`{hf}`, AI=`{ai_norm}`).\n"
+        f"Focus: {persona['plain_english_focus']}\n"
+        "Coaching rules:\n"
+        "1. Speak in plain shop English — zero robotics or CNC jargon unless the operator asks for advanced math.\n"
+        "2. Ask the operator for 1–2 wide phone photos of the workspace (or a plain-English layout description if ITAR/camera-restricted). "
+        "Conservatively identify walkways, machine door sweeps, spinning spindles, overhead fixtures, electrical cabinets, and unlabeled chemical jugs.\n"
+        "3. Never claim Graft software replaces a physical E-stop. Confirm hardwired ISO 13850 red E-stop + ISO 13849-1 door interlocks before any motion.\n"
+        f"4. Verify Hand HAL (`{hf}`) limits and walk through teaching datums ({datums_yaml}) ONLY after a clean 48-hour zero-motion L0 OBSERVE shadow trial.\n"
+        "5. If any object is unlabeled or unfamiliar, use Graft's Semantic-to-Deterministic Ratchet (`graft_check_semantic_action`) — never guess."
+    )
+
+    first_48h_l0_plan = {
+        "starting_level": "L0_OBSERVE",
+        "physical_motion_allowed": False,
+        "duration_hours": 48,
+        "console_url_local": "http://127.0.0.1:8788/",
+        "phases": [
+            {
+                "window": "Hours 0–2: Boot & Deterministic Dry-Run",
+                "steps": [
+                    f"Save and Ed25519-sign `./{rname}-cell/ROBOT.md` v1.1 (or run `{cli_onboard_cmd}`).",
+                    "Boot the local Graft Cell Console on `:8788` in `sim` / `L0_OBSERVE` (0% speed/force cap).",
+                    "Run 1 in-bounds test proposal (`ALLOW` shadow receipt) and 1 keep-out / slip violation (`DENY` receipt) and verify RFC 8785 SHA-256 hashes.",
+                ],
+            },
+            {
+                "window": "Hours 2–24: Zero-Motion Shift Shadowing",
+                "steps": [
+                    "Run normal shop/lab operations while the AI planner logs proposed intents against live read-only sensors (`graft_discover_devices`).",
+                    "Verify zero stale sensor warnings and confirm walkways, doors, and exclusion boxes trigger deterministic `DENY` whenever crossed.",
+                ],
+            },
+            {
+                "window": "Hours 24–48: Audit Review & L1 Graduation Gate",
+                "steps": [
+                    "Inspect the 48-hour SHA-256 shadow receipt log (`/shadow-trial-audit`) for 0 unexpected allows and 0 envelope violations.",
+                    "Confirm physical ISO 13850 red E-stop button test and ISO 13849-1 door interlock integrity.",
+                    f"Only when every check is green, promote `{rname}` to `L1_ATOMIC` (30% speed cap, human approval every action) via `graft_trust_ladder(action='promote', robot_id='{rname}')` and teach datums: {', '.join(persona['datums'])}.",
+                ],
+            },
+        ],
+    }
+
+    estop_status = (
+        "CONFIRMED by operator (still verify physically before every shift)."
+        if hardwired_estop_confirmed
+        else "NOT YET CONFIRMED — cell is strictly locked to zero-motion L0_OBSERVE simulation/shadow mode until an operator verifies a hardwired ISO 13850 E-stop."
+    )
+    safety_boundary_note = (
+        "MANDATORY SAFETY BOUNDARY: `robot-gate`, `graft-core`, `graft-watchdog`, `bounded-embodiment`, and "
+        "`robot-md-gateway` provide a deterministic, default-deny SOFTWARE pre-flight gate and offline-verifiable "
+        "RFC 8785 / SHA-256 audit chain. They are NEVER a certified ISO 13850 hardware emergency stop or ISO 13849-1 "
+        f"safety relay / door interlock. Hardwired ISO 13850 E-stop status: {estop_status}"
+    )
+
+    studio_url = f"https://graftrobotics.ai/onboard/?persona={ut}&depth={depth}&hand={hf}&ai={ai_norm}"
+
+    return {
+        "ok": True,
+        "user_type": ut,
+        "persona_label": persona["label"],
+        "setup_depth": depth,
+        "hand_family": hf,
+        "hand_label": hand["label"],
+        "ai_tier": ai_norm,
+        "organization": org,
+        "robot_name": rname,
+        "starting_trust_level": "L0_OBSERVE",
+        "motion_authorized": False,
+        "hardwired_estop_confirmed": bool(hardwired_estop_confirmed),
+        "estimated_llm_cost": bundle["estimated_llm_cost"],
+        "onboard_studio_url": "https://graftrobotics.ai/onboard/",
+        "onboard_studio_deeplink": studio_url,
+        "cli_equivalent": cli_onboard_cmd,
+        "robot_md_v1_1": robot_md_v1_1,
+        "install_commands": install_commands,
+        "client_config": bundle["client_config"],
+        "llm_coach_instructions": llm_coach_instructions,
+        "first_48h_l0_plan": first_48h_l0_plan,
+        "safety_boundary_note": safety_boundary_note,
+    }
+
+
 def _result(summary: str, data: dict[str, Any]) -> types.CallToolResult:
     return types.CallToolResult(
         content=[types.TextContent(type="text", text=summary)],
@@ -460,6 +936,31 @@ def prompt_semantic_hazard_ratchet(verb: str = "pour", source_object_id: str = "
 
 
 @mcp.prompt(
+    name="remote_shop_onboarding",
+    description="Act as a plain-English Remote Shop Onboarding Specialist (zero FDE / zero machinist needed): phone-photo hazard review, ISO 13850 E-stop check, 6 Hand HAL families, onboarding kit & 48h L0 shadow trial.",
+)
+def prompt_remote_shop_onboarding(
+    user_type: str = "cnc",
+    setup_depth: str = "quick",
+    organization: str = "My Shop Cell",
+) -> str:
+    return (
+        f"Act as the Graft Robotics Remote Shop Onboarding Specialist for `{organization}` "
+        f"(track=`{user_type}`, depth=`{setup_depth}` — zero FDE and zero machining specialist required):\n"
+        f"1. Adapt your language to `{user_type}` (`cnc`, `lab`, `oem`, `benchtop`, or `ehs`) and `{setup_depth}` (`quick` vs `advanced`). Keep questions plain-English and one step at a time.\n"
+        f"2. Ask the operator for 1–2 wide phone photos of their machine/workspace (or a plain-English layout if camera-restricted). "
+        f"Conservatively flag walkways, door/spindle sweeps, electrical cabinets, overhead fixtures, and any unlabeled containers for keep-out zones.\n"
+        f"3. Read `graft://safety/boundary-policy` and confirm a hardwired **ISO 13850** red mushroom E-stop and intact **ISO 13849-1** door interlocks/safety relays. "
+        f"State clearly that Graft software NEVER replaces hardware E-stops.\n"
+        f"4. Help the operator select one of the 6 Hand HAL families (`parallel_2f`, `concentric_3f`, `dexterous_5f`, `vacuum_suction`, `magnetic_atc`, `bimanual_coordinated`) "
+        f"and their AI tier (`claude`, `antigravity`, `codex`, `apple_mlx`, `google_gemma4`, `ollama`).\n"
+        f"5. Call `graft_generate_onboarding_kit(user_type='{user_type}', setup_depth='{setup_depth}', organization='{organization}', interactive=True)` "
+        f"(or pass the collected fields explicitly) to generate their `ROBOT.md` v1.1, `uv`-first install commands, LLM coach prompt, and link to https://graftrobotics.ai/onboard/.\n"
+        f"6. Launch their first **48-hour zero-motion `L0 OBSERVE` shadow trial** on `:8788` before ever teaching datums or promoting to `L1 ATOMIC`."
+    )
+
+
+@mcp.prompt(
     name="incident-estop-recovery",
     description="Post-fault or post-E-stop isolation, Trust Ladder demotion verification, and safe re-arm checklist.",
 )
@@ -474,7 +975,7 @@ def prompt_incident_estop_recovery(robot_id: str = "ur5e") -> str:
 
 
 # ==============================================================================
-# MCP TOOLS (14 TOOLS INCLUDING ELICITATION-ENABLED HUMAN APPROVAL GATES)
+# MCP TOOLS (15 TOOLS INCLUDING ELICITATION-ENABLED HUMAN APPROVAL GATES)
 # ==============================================================================
 @mcp.tool(name="open_graft_workbench", title="Graft Robotics Workbench", meta=PANE_META)
 def open_graft_workbench() -> types.CallToolResult:
@@ -862,6 +1363,64 @@ def graft_ingest_ambient_signal(
     else:
         d = evaluate_wifi_motion_signal(sensor_id=sensor_id, rssi_dbm_samples=[-40.0, -49.0, -37.0, -48.0], estimated_distance_m=estimated_distance_m)
     return _result(f"Ambient [{d.action}] ({modality}): {d.reason}", d.__dict__)
+
+
+@mcp.tool(name="graft_generate_onboarding_kit", title="Generate Remote Shop Onboarding Kit", meta=INLINE_META)
+async def graft_generate_onboarding_kit(
+    user_type: str = "cnc",
+    setup_depth: str = "quick",
+    hand_family: str = "parallel_2f",
+    ai_tier: str = "claude",
+    organization: str = "My Shop Cell",
+    robot_name: str = "",
+    hardwired_estop_confirmed: bool = False,
+    interactive: bool = False,
+    ctx: Context | None = None,
+) -> types.CallToolResult:
+    """Generate a complete self-serve Remote Shop Onboarding Kit (ROBOT.md v1.1 starting in L0 OBSERVE, uv-first install commands, LLM coach instructions, 48h L0 shadow trial plan, ISO 13850 safety boundary note, and https://graftrobotics.ai/onboard/ link). Supports native MCP Form Elicitation via RemoteOnboardingElicitation."""
+    elicitation_status = "skipped"
+    if interactive or (user_type or "").strip().lower() == "interactive":
+        e_action, e_data = await _try_elicit(
+            ctx,
+            "Configure your Graft Robotics Remote Shop Onboarding Kit (starts strictly in zero-motion L0 OBSERVE shadow mode). Confirm whether a physical hardwired ISO 13850 E-stop is installed and tested.",
+            RemoteOnboardingElicitation,
+        )
+        elicitation_status = e_action
+        if e_action == "accept" and e_data is not None:
+            user_type = e_data.user_type
+            setup_depth = e_data.setup_depth
+            hand_family = e_data.hand_family
+            ai_tier = e_data.ai_tier
+            hardwired_estop_confirmed = bool(e_data.hardwired_estop_confirmed)
+        elif e_action in ("decline", "cancel"):
+            return _result(
+                "Remote shop onboarding kit generation cancelled by operator.",
+                {"ok": False, "generated": False, "elicitation": e_action},
+            )
+        elif (user_type or "").strip().lower() == "interactive":
+            user_type = "cnc"
+
+    try:
+        kit = _build_onboarding_kit(
+            user_type=user_type,
+            setup_depth=setup_depth,
+            hand_family=hand_family,
+            ai_tier=ai_tier,
+            organization=organization,
+            robot_name=robot_name,
+            hardwired_estop_confirmed=hardwired_estop_confirmed,
+        )
+    except ValueError as exc:
+        return _result(f"Invalid onboarding kit parameter: {exc}", {"ok": False, "error": str(exc)})
+
+    kit["elicitation"] = elicitation_status
+    estop_tag = "ISO 13850 E-stop confirmed" if kit["hardwired_estop_confirmed"] else "ISO 13850 E-stop NOT confirmed (L0 shadow only)"
+    summary = (
+        f"Onboarding Kit ready for {kit['organization']} (`{kit['robot_name']}` · track={kit['user_type']} · "
+        f"depth={kit['setup_depth']} · hand={kit['hand_family']} · ai={kit['ai_tier']} · {estop_tag}). "
+        f"Starts strictly in zero-motion L0_OBSERVE for 48h shadow trial. Web studio: {kit['onboard_studio_url']}"
+    )
+    return _result(summary, kit)
 
 
 @mcp.tool(name="graft_run_set_benchmark", title="Run RoboCurve SET-Sim Benchmark (MuJoCo 4.0)", meta=INLINE_META)
