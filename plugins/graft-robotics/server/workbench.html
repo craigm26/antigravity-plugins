@@ -7,25 +7,53 @@
 <style>
   :root {
     --paper:#F5F2EB; --card:#FFFDF9; --sand:#EAE4D7; --ink:#181715; --soft:#57524A;
-    --line:#DCD5C7; --moss:#1F6F4A; --moss-bg:#E3F2EA; --verm:#E85D2A; --red:#C82820; --red-bg:#FDE8E7;
+    --line:#DCD5C7; --moss:#1F6F4A; --moss-bg:#E3F2EA; --verm:#E85D2A; --red:#C2410C; --red-bg:#FDEBE4;
+    --amber:#B45309; --amber-bg:#FEF3DB;
   }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--paper); color:var(--ink); font-family:system-ui,-apple-system,sans-serif; padding:12px; font-size:13px; }
-  .hdr { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  .hdr { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
   .brand { display:flex; align-items:center; gap:8px; font-weight:700; font-size:15px; }
   .brand span { font-weight:400; color:var(--soft); }
-  .pill { font-family:ui-monospace,monospace; font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--moss-bg); color:var(--moss); }
+  .pill { font-family:ui-monospace,monospace; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--moss-bg); color:var(--moss); border:1px solid var(--moss); }
+  .pill.hold { background:var(--red-bg); color:var(--red); border-color:var(--verm); }
+  .pill.amber { background:var(--amber-bg); color:var(--amber); border-color:var(--amber); }
+
+  .hold-strip {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;
+    background:var(--red-bg); border:1.5px solid var(--verm); border-radius:11px;
+    padding:9px 11px; margin-bottom:10px;
+  }
+  .hold-strip strong { color:var(--red); font-size:12px; }
+  .hold-strip .sub { font-size:10.5px; color:var(--soft); display:block; margin-top:2px; }
+  .btn {
+    cursor:pointer; border-radius:999px; padding:5px 11px; font-size:11px; font-weight:700;
+    border:1.5px solid var(--line); background:var(--card); color:var(--ink);
+  }
+  .btn.moss { background:var(--moss); border-color:var(--moss); color:#fff; }
+  .btn.verm { background:var(--verm); border-color:var(--verm); color:#fff; }
+
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:11px; margin-bottom:10px; }
-  h4 { margin:0 0 6px; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--soft); }
-  .row { display:flex; justify-content:space-between; align-items:center; padding:4px 7px; border-radius:7px; background:var(--paper); margin-bottom:4px; font-family:ui-monospace,monospace; font-size:11.5px; }
+  .card-hdr { display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:6px; flex-wrap:wrap; }
+  h4 { margin:0; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--soft); }
+  .row { display:flex; justify-content:space-between; align-items:center; padding:5px 8px; border-radius:7px; background:var(--paper); margin-bottom:4px; font-family:ui-monospace,monospace; font-size:11px; gap:6px; }
   .ladder { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-top:6px; }
   .lvl { padding:6px; border-radius:8px; background:var(--paper); border:1px solid var(--line); font-size:11px; text-align:center; }
   .lvl.on { background:var(--moss-bg); border-color:var(--moss); color:var(--moss); font-weight:700; }
+
+  .inbox-item {
+    border:1px solid var(--line); border-left:3.5px solid var(--verm); border-radius:8px;
+    background:var(--paper); padding:7px 9px; margin-bottom:6px;
+  }
+  .inbox-top { display:flex; justify-content:space-between; align-items:center; gap:6px; font-family:ui-monospace,monospace; font-size:10.5px; margin-bottom:3px; }
+  .inbox-reason { font-size:11.5px; margin-bottom:5px; }
+  .tag { display:inline-block; padding:1px 6px; border-radius:999px; font-family:ui-monospace,monospace; font-size:10px; font-weight:700; background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber); margin-right:4px; }
+
   .bundle-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
   .b-chip { padding:7px 9px; border-radius:8px; background:var(--paper); border:1px solid var(--line); font-size:11.5px; }
   .b-chip b { display:block; color:var(--ink); }
   .b-chip span { color:var(--soft); font-size:10.5px; }
-  .note { font-size:11px; color:var(--soft); margin-top:8px; line-height:1.4; }
+  .note { font-size:11px; color:var(--soft); margin-top:7px; line-height:1.4; }
 </style>
 </head>
 <body>
@@ -40,42 +68,69 @@
       </svg>
       graft <span>robotics · Workbench</span>
     </div>
-    <span class="pill" id="modePill">MCP APP v0.4 · READY</span>
-  </div>
-
-  <div class="card">
-    <h4>Progressive Trust &amp; Skill Ladder (MCP Form Elicitation)</h4>
-    <div class="ladder">
-      <div class="lvl on"><b>L0</b><br/>Observe</div>
-      <div class="lvl on"><b>L1</b><br/>30% Pick</div>
-      <div class="lvl"><b>L2</b><br/>60% Chain</div>
-      <div class="lvl"><b>L3</b><br/>Autonomous</div>
+    <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+      <span class="pill" id="eeFamilyPill">HAL: parallel_2f</span>
+      <span class="pill" id="modePill">CELL CONSOLE MIRROR</span>
     </div>
-    <div id="trustOut" class="note">Promotions, semantic ratchets, and skill-pack installs use interactive <b>MCP Form Elicitations</b> (<code>ctx.elicit</code>) so operators confirm bounds &amp; work orders explicitly.</div>
+  </div>
+
+  <div class="hold-strip">
+    <div>
+      <strong id="holdLabel">Software HOLD Latch: DISENGAGED (SIM SAFE)</strong>
+      <span class="sub">Deterministic software boundary latch paired with hardwired ISO 13850 shop E-stops — NEVER a hardware E-stop.</span>
+    </div>
+    <button class="btn verm" id="holdBtn" onclick="toggleWorkbenchHold()">Engage HOLD</button>
   </div>
 
   <div class="card">
-    <h4>Multi-Sensor World Model, Mechanics &amp; Semantic Ratchet</h4>
+    <div class="card-hdr">
+      <h4>Progressive Trust &amp; Skill Ladder (L0 &rarr; L3)</h4>
+      <span class="pill" id="trustBadge">L0_OBSERVE</span>
+    </div>
+    <div class="ladder" id="ladderGrid">
+      <div class="lvl on" data-lvl="0"><b>L0</b><br/>Observe</div>
+      <div class="lvl" data-lvl="1"><b>L1</b><br/>30% Pick</div>
+      <div class="lvl" data-lvl="2"><b>L2</b><br/>60% Chain</div>
+      <div class="lvl" data-lvl="3"><b>L3</b><br/>Autonomous</div>
+    </div>
+    <div id="trustOut" class="note">Promotions, semantic ratchets, and skill-pack installs use interactive <b>MCP Form Elicitations</b> (<code>ctx.elicit</code>) or the local Graft Cell Console so operators confirm bounds &amp; ISO 13850 E-stop reachability explicitly.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <h4>Semantic Ratchet Inbox (VLM Veto &rarr; Deterministic Rule)</h4>
+      <span class="pill amber" id="inboxCountPill">2 pending</span>
+    </div>
+    <div id="ratchetInbox"></div>
+    <div class="note" id="ratchetStatus">Crystallized rules execute deterministically in microseconds with RFC 8785 SHA-256 receipts.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <h4>End-Effector HAL, Multi-Sensor World Model &amp; Kernel</h4>
+      <span class="pill" id="eeDriverBadge">castor-hal</span>
+    </div>
     <div id="wmOut">
-      <div class="row"><span>Sensors: OAK-D Pro + LAN LiDAR + F/T + Wi-Fi CSI</span><span>LIVE</span></div>
-      <div class="row"><span>Rust Kernel: graft-core 0.1.0 + MuJoCo 4.0.1</span><span>2.11 µs</span></div>
-      <div class="row"><span>Semantic Guard: Provenance + Veto VLM + Ratchet</span><span>6/6 · 5/5</span></div>
-      <div class="row"><span>Hooks &amp; Resources: PreToolUse + 5 Live URIs</span><span>ARMED</span></div>
+      <div class="row"><span>End-Effector Family</span><span id="eeSummaryRow">parallel_2f · maintain_grasp on HOLD</span></div>
+      <div class="row"><span>Sensors: OAK-D Pro + LAN LiDAR + F/T + PLC</span><span id="sensorSummaryRow">FRESH</span></div>
+      <div class="row"><span>Rust Kernel: graft-core 0.1.0 + MuJoCo 4.0.1</span><span>2.11 µs · 303.3 Hz</span></div>
+      <div class="row"><span>Semantic Guard: Provenance + Veto VLM + Ratchet</span><span id="guardSummaryRow">6/6 · 5/5</span></div>
+      <div class="row"><span>RFC 8785 Audit &amp; EV-03 Receipt Chain</span><span id="auditSummaryRow">INTACT</span></div>
     </div>
   </div>
 
   <div class="card">
-    <h4>Anthropic Plugin Playbooks (MCP Prompts + Slash Commands)</h4>
+    <div class="card-hdr"><h4>Anthropic Plugin Playbooks (MCP Prompts + Slash Commands)</h4></div>
     <div class="bundle-grid">
       <div class="b-chip"><b>/shift-start-preflight</b><span>World model + sensors + E-stop</span></div>
-      <div class="b-chip"><b>/cnc-cell-onboarding</b><span>Guided L0→L1 skill pack setup</span></div>
+      <div class="b-chip"><b>/cnc-cell-onboarding</b><span>Guided L0&rarr;L1 skill pack setup</span></div>
       <div class="b-chip"><b>/shadow-trial-audit</b><span>48-hr L0 receipt &amp; EV-03 verify</span></div>
-      <div class="b-chip"><b>/semantic-hazard-ratchet</b><span>Crystallize VLM veto → rule</span></div>
+      <div class="b-chip"><b>/semantic-hazard-ratchet</b><span>Crystallize VLM veto &rarr; rule</span></div>
     </div>
   </div>
 
   <div class="card">
-    <h4>Client LLM &amp; Local Shop-Floor Bundles (uv / uvx First)</h4>
+    <div class="card-hdr"><h4>Client LLM &amp; Local Shop-Floor Bundles (uv / uvx First)</h4></div>
     <div class="bundle-grid">
       <div class="b-chip"><b>Claude / Anthropic</b><span>MCP App + Elicitations + Hooks</span></div>
       <div class="b-chip"><b>Google Antigravity</b><span>Side-Pane MCP App ($0-$20/mo)</span></div>
@@ -84,7 +139,161 @@
       <div class="b-chip"><b>OpenAI Codex CLI</b><span>config.toml MCP ($20+/mo)</span></div>
       <div class="b-chip"><b>On-Prem Ollama Pi 5</b><span>Air-Gapped Qwen/Gemma ($0/mo)</span></div>
     </div>
-    <div class="note"><strong>Safety boundary:</strong> Deterministic software pre-flight gate &amp; RFC 8785 SHA-256 audit log — never a replacement for hardwired ISO 13850 shop E-stops.</div>
+    <div class="note"><strong>Mandatory Safety Boundary:</strong> Deterministic default-deny software pre-flight boundary &amp; RFC 8785 SHA-256 audit layer — NEVER a replacement for hardwired ISO 13850 shop E-stops or ISO 13849-1 safety relays.</div>
   </div>
+
+<script>
+const CELL_URL = (window.GRAFT_CELL_URL || 'http://127.0.0.1:8080').replace(/\/$/, '');
+let LIVE_CONNECTED = false;
+let HOLD_LATCHED = false;
+
+const FALLBACK_INBOX = [
+  {
+    item_id: 'ratchet-001',
+    verb: 'pour',
+    source_object_id: 'unlabeled_shop_jug_01',
+    target_object_id: 'degreaser_basin_ammonia',
+    decision: 'DENY',
+    reason: 'VLM caption detects bleach + ammonia mixing hazard (GHS chloramine).',
+    suggested_tags: { unlabeled_shop_jug_01: ['oxidizer_bleach'], degreaser_basin_ammonia: ['ammonia_base'] }
+  },
+  {
+    item_id: 'ratchet-002',
+    verb: 'insert',
+    source_object_id: 'coolant_bottle_hairline_02',
+    target_object_id: 'fixture_nest_b',
+    decision: 'ESCALATE_L1_HUMAN',
+    reason: 'Hairline structural crack flagged on vessel — confirm & ratchet fragile_cracked.',
+    suggested_tags: { coolant_bottle_hairline_02: ['fragile_cracked'] }
+  }
+];
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function renderHold(latched, mode) {
+  HOLD_LATCHED = Boolean(latched);
+  const lbl = document.getElementById('holdLabel');
+  const btn = document.getElementById('holdBtn');
+  if (HOLD_LATCHED) {
+    lbl.textContent = 'Software HOLD Latch: LATCHED (All Motion Blocked · SIM)';
+    btn.textContent = 'Release HOLD';
+    btn.className = 'btn moss';
+  } else {
+    lbl.textContent = `Software HOLD Latch: DISENGAGED (${String(mode || 'sim').toUpperCase()})`;
+    btn.textContent = 'Engage HOLD';
+    btn.className = 'btn verm';
+  }
+}
+
+function renderInbox(items, rulesCount) {
+  const pill = document.getElementById('inboxCountPill');
+  pill.textContent = `${items.length} pending`;
+  pill.className = items.length ? 'pill amber' : 'pill';
+  const box = document.getElementById('ratchetInbox');
+  if (!items.length) {
+    box.innerHTML = '<div class="row"><span>All semantic hazards reviewed</span><span>CLEAR</span></div>';
+  } else {
+    box.innerHTML = items.map(it => {
+      const tags = Object.entries(it.suggested_tags || {}).map(([oid, tl]) =>
+        (tl || []).map(t => `<span class="tag">${esc(oid)}: ${esc(t)}</span>`).join('')
+      ).join('');
+      return `
+        <div class="inbox-item">
+          <div class="inbox-top">
+            <span><b>${esc(it.item_id)}</b> · ${esc(it.verb)} ${esc(it.source_object_id)}</span>
+            <span>${esc(it.decision)}</span>
+          </div>
+          <div class="inbox-reason">${esc(it.reason)}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap">
+            <div>${tags}</div>
+            <button class="btn moss" onclick="crystallizeItem('${esc(it.item_id)}')">Crystallize Rule</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+  document.getElementById('ratchetStatus').textContent =
+    `${rulesCount} deterministic rule(s) active in SemanticWorldRegistry · RFC 8785 hash-chained.`;
+}
+
+function renderState(st) {
+  LIVE_CONNECTED = true;
+  document.getElementById('modePill').textContent = 'CELL LIVE · v' + st.version;
+  renderHold(st.estop_latched, st.mode);
+
+  const active = (st.trust_ladder && st.trust_ladder.active) || {};
+  const lvl = Number(active.level ?? 0);
+  document.getElementById('trustBadge').textContent = active.level_name || 'L0_OBSERVE';
+  document.querySelectorAll('#ladderGrid .lvl').forEach(el => {
+    el.classList.toggle('on', Number(el.dataset.lvl) <= lvl);
+  });
+
+  const ee = (st.end_effectors && st.end_effectors[0]) || { family: 'parallel_2f', driver: 'castor-hal', fail_safe_on_software_hold: 'maintain_grasp' };
+  document.getElementById('eeFamilyPill').textContent = 'HAL: ' + ee.family;
+  document.getElementById('eeDriverBadge').textContent = ee.driver || 'castor-hal';
+  document.getElementById('eeSummaryRow').textContent = `${ee.family} · ${ee.fail_safe_on_software_hold || 'maintain_grasp'} on HOLD`;
+
+  const stale = st.stale_sensors || [];
+  document.getElementById('sensorSummaryRow').textContent = stale.length ? `STALE (${stale.length})` : `FRESH (${(st.sensors || []).length})`;
+
+  const sr = st.semantic_ratchet || {};
+  renderInbox(sr.pending || [], (sr.crystallized_rules || []).length);
+
+  const ac = st.audit_chain || {};
+  document.getElementById('auditSummaryRow').textContent = ac.valid ? `INTACT · ${ac.record_count} recs` : 'TAMPERED';
+}
+
+async function syncFromCellConsole() {
+  try {
+    const res = await fetch(`${CELL_URL}/v1/console/state`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    renderState(data);
+  } catch (_err) {
+    LIVE_CONNECTED = false;
+    document.getElementById('modePill').textContent = 'MCP APP v0.4 · OFFLINE MIRROR';
+    renderHold(HOLD_LATCHED, 'sim');
+    renderInbox(FALLBACK_INBOX, 5);
+  }
+}
+
+async function toggleWorkbenchHold() {
+  if (!LIVE_CONNECTED) {
+    renderHold(!HOLD_LATCHED, 'sim');
+    return;
+  }
+  const path = HOLD_LATCHED ? '/v1/release' : '/v1/hold';
+  const body = HOLD_LATCHED ? { tier: 'commission' } : { reason: 'mcp_workbench_hold' };
+  try {
+    await fetch(`${CELL_URL}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+  } catch (_err) {
+    renderHold(!HOLD_LATCHED, 'sim');
+    return;
+  }
+  await syncFromCellConsole();
+}
+
+async function crystallizeItem(itemId) {
+  if (!LIVE_CONNECTED) {
+    const idx = FALLBACK_INBOX.findIndex(x => x.item_id === itemId);
+    if (idx >= 0) FALLBACK_INBOX.splice(idx, 1);
+    renderInbox(FALLBACK_INBOX, 6);
+    return;
+  }
+  await fetch(`${CELL_URL}/v1/ratchet/approve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ item_id: itemId, operator: 'mcp_workbench_operator' })
+  });
+  await syncFromCellConsole();
+}
+
+syncFromCellConsole();
+</script>
 </body>
 </html>
