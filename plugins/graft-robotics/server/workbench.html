@@ -3,21 +3,29 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Graft Robotics Workbench</title>
+<title>Graft Robotics Workbench v0.5.0</title>
 <style>
   :root {
     --paper:#F5F2EB; --card:#FFFDF9; --sand:#EAE4D7; --ink:#181715; --soft:#57524A;
     --line:#DCD5C7; --moss:#1F6F4A; --moss-bg:#E3F2EA; --verm:#E85D2A; --red:#C2410C; --red-bg:#FDEBE4;
-    --amber:#B45309; --amber-bg:#FEF3DB;
+    --amber:#B45309; --amber-bg:#FEF3DB; --cobalt:#1D4ED8; --cobalt-bg:#E8F0FE;
   }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--paper); color:var(--ink); font-family:system-ui,-apple-system,sans-serif; padding:12px; font-size:13px; }
   .hdr { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
   .brand { display:flex; align-items:center; gap:8px; font-weight:700; font-size:15px; }
   .brand span { font-weight:400; color:var(--soft); }
+  .pills { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
   .pill { font-family:ui-monospace,monospace; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--moss-bg); color:var(--moss); border:1px solid var(--moss); }
   .pill.hold { background:var(--red-bg); color:var(--red); border-color:var(--verm); }
   .pill.amber { background:var(--amber-bg); color:var(--amber); border-color:var(--amber); }
+  .pill.cobalt { background:var(--cobalt-bg); color:var(--cobalt); border-color:var(--cobalt); }
+
+  .offline-banner {
+    display:none; background:var(--amber-bg); border:1.5px solid var(--amber); border-radius:10px;
+    padding:8px 11px; margin-bottom:10px; font-size:11.5px; color:#78350F;
+  }
+  .offline-banner.show { display:block; }
 
   .hold-strip {
     display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;
@@ -30,17 +38,20 @@
     cursor:pointer; border-radius:999px; padding:5px 11px; font-size:11px; font-weight:700;
     border:1.5px solid var(--line); background:var(--card); color:var(--ink);
   }
+  .btn:disabled { opacity:0.6; cursor:not-allowed; }
   .btn.moss { background:var(--moss); border-color:var(--moss); color:#fff; }
   .btn.verm { background:var(--verm); border-color:var(--verm); color:#fff; }
+  .btn.cobalt { background:var(--cobalt); border-color:var(--cobalt); color:#fff; }
 
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:11px; margin-bottom:10px; }
   .card-hdr { display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:6px; flex-wrap:wrap; }
   h4 { margin:0; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--soft); }
   .row { display:flex; justify-content:space-between; align-items:center; padding:5px 8px; border-radius:7px; background:var(--paper); margin-bottom:4px; font-family:ui-monospace,monospace; font-size:11px; gap:6px; }
-  .ladder { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-top:6px; }
+  .ladder { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; margin-top:6px; }
   .lvl { padding:6px; border-radius:8px; background:var(--paper); border:1px solid var(--line); font-size:11px; text-align:center; }
   .lvl.on { background:var(--moss-bg); border-color:var(--moss); color:var(--moss); font-weight:700; }
 
+  .action-bar { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-top:6px; }
   .inbox-item {
     border:1px solid var(--line); border-left:3.5px solid var(--verm); border-radius:8px;
     background:var(--paper); padding:7px 9px; margin-bottom:6px;
@@ -49,8 +60,8 @@
   .inbox-reason { font-size:11.5px; margin-bottom:5px; }
   .tag { display:inline-block; padding:1px 6px; border-radius:999px; font-family:ui-monospace,monospace; font-size:10px; font-weight:700; background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber); margin-right:4px; }
 
-  .bundle-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-  .b-chip { padding:7px 9px; border-radius:8px; background:var(--paper); border:1px solid var(--line); font-size:11.5px; }
+  .bundle-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+  .b-chip { padding:7px 9px; border-radius:8px; background:var(--paper); border:1px solid var(--line); font-size:11.5px; min-width:0; }
   .b-chip b { display:block; color:var(--ink); }
   .b-chip span { color:var(--soft); font-size:10.5px; }
   .note { font-size:11px; color:var(--soft); margin-top:7px; line-height:1.4; }
@@ -66,12 +77,18 @@
         <line x1="60" y1="14" x2="68" y2="38" stroke="#181715" stroke-width="4.5"/>
         <circle cx="64" cy="64" r="9.5" fill="#E85D2A"/>
       </svg>
-      graft <span>robotics · Workbench</span>
+      graft <span>robotics · Workbench v0.5.0</span>
     </div>
-    <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+    <div class="pills">
       <span class="pill" id="eeFamilyPill">HAL: parallel_2f</span>
-      <span class="pill" id="modePill">CELL CONSOLE MIRROR</span>
+      <span class="pill amber" id="vaultDriftBadge">VAULT: CHECKING...</span>
+      <span class="pill amber" id="modePill">CONNECTING :8785...</span>
     </div>
+  </div>
+
+  <div class="offline-banner" id="offlineBanner">
+    <strong>OFFLINE DEMO MODE (v0.5.0):</strong> Local Cell Console (<code>http://127.0.0.1:8785</code>) is not reachable.
+    Start <code>robot-gate serve --dir . --port 8785</code> for live 2-second telemetry, or use MCP Apps <code>postMessage</code> bridge tools.
   </div>
 
   <div class="hold-strip">
@@ -80,6 +97,20 @@
       <span class="sub">Deterministic software boundary latch paired with hardwired ISO 13850 shop E-stops — NEVER a hardware E-stop.</span>
     </div>
     <button class="btn verm" id="holdBtn" onclick="toggleWorkbenchHold()">Engage HOLD</button>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <h4>Wedge A-Upmarket · Compliance Pack &amp; Fleet Vault</h4>
+      <span class="pill cobalt" id="pollHeartbeat">POLL: 2s</span>
+    </div>
+    <div class="row"><span>ISO 10218:2025 &amp; EU (2023/1230) Dossier</span><span id="complianceStatusRow">graft-compliance-pack.zip (0 private keys)</span></div>
+    <div class="row"><span>Cloudflare D1 Hosted Fleet Vault (Opt-In)</span><span id="vaultDetailRow">Zero phone-home when GRAFT_VAULT_API_KEY unset</span></div>
+    <div class="action-bar">
+      <button class="btn moss" id="downloadComplianceBtn" onclick="downloadCompliancePack()">Download Compliance Pack ZIP</button>
+      <button class="btn" id="refreshVaultBtn" onclick="refreshVaultStatus()">Refresh Vault Status</button>
+      <span class="note" id="complianceActionNote" style="margin:0">GET /v1/compliance-pack · verified offline before download</span>
+    </div>
   </div>
 
   <div class="card">
@@ -107,47 +138,54 @@
 
   <div class="card">
     <div class="card-hdr">
-      <h4>End-Effector HAL, Multi-Sensor World Model &amp; Kernel</h4>
+      <h4>End-Effector HAL, ROS 2 Boundary &amp; Rust Kernel</h4>
       <span class="pill" id="eeDriverBadge">castor-hal</span>
     </div>
     <div id="wmOut">
       <div class="row"><span>End-Effector Family</span><span id="eeSummaryRow">parallel_2f · maintain_grasp on HOLD</span></div>
       <div class="row"><span>Sensors: OAK-D Pro + LAN LiDAR + F/T + PLC</span><span id="sensorSummaryRow">FRESH</span></div>
-      <div class="row"><span>Rust Kernel: graft-core 0.1.0 + MuJoCo 4.0.1</span><span>2.11 µs · 303.3 Hz</span></div>
-      <div class="row"><span>Semantic Guard: Provenance + Veto VLM + Ratchet</span><span id="guardSummaryRow">6/6 · 5/5</span></div>
+      <div class="row"><span>Rust Kernel: graft-core slab + MuJoCo 4.0.1</span><span>1.96 &micro;s · 0.0125 ms cached</span></div>
+      <div class="row"><span>Watchdog Heartbeat (/stop p50)</span><span>0.22 ms · monotonic clock</span></div>
       <div class="row"><span>RFC 8785 Audit &amp; EV-03 Receipt Chain</span><span id="auditSummaryRow">INTACT</span></div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-hdr"><h4>Anthropic Plugin Playbooks (6 MCP Prompts + Slash Commands)</h4></div>
+    <div class="card-hdr"><h4>MCP Plugin v0.5.0 Playbooks (7 Prompts + 19 Tools)</h4></div>
     <div class="bundle-grid">
+      <div class="b-chip"><b>/ros2-compliance-audit</b><span>ros2-bridge &rarr; check &rarr; pack &rarr; vault</span></div>
+      <div class="b-chip"><b>/remote-shop-onboarding</b><span>Zero-FDE kit + 6-family Hand HAL</span></div>
       <div class="b-chip"><b>/shift-start-preflight</b><span>World model + sensors + E-stop</span></div>
       <div class="b-chip"><b>/cnc-cell-onboarding</b><span>Guided L0&rarr;L1 skill pack setup</span></div>
-      <div class="b-chip"><b>/remote-shop-onboarding</b><span>Zero-FDE kit + 6-family Hand HAL</span></div>
       <div class="b-chip"><b>/shadow-trial-audit</b><span>48-hr L0 receipt &amp; EV-03 verify</span></div>
       <div class="b-chip"><b>/semantic-hazard-ratchet</b><span>Crystallize VLM veto &rarr; rule</span></div>
       <div class="b-chip"><b>/incident-estop-recovery</b><span>Post-fault isolation &amp; L1 re-arm</span></div>
+      <div class="b-chip"><b>graft_connect_agent</b><span>6 LLM clients &rarr; L0 OBSERVE</span></div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-hdr"><h4>Client LLM &amp; Local Shop-Floor Bundles (uv / uvx First)</h4></div>
+    <div class="card-hdr"><h4>Connect Any LLM Client (v0.5.0 · Zero GitHub Actions)</h4></div>
     <div class="bundle-grid">
-      <div class="b-chip"><b>Claude / Anthropic</b><span>MCP App + Elicitations + Hooks</span></div>
-      <div class="b-chip"><b>Google Antigravity</b><span>Side-Pane MCP App ($0-$20/mo)</span></div>
-      <div class="b-chip"><b>Apple Silicon MLX</b><span>Mac mini M4/M5 LAN ($0/mo)</span></div>
-      <div class="b-chip"><b>Google Gemma 4 Local</b><span>E4B / 26B MoE + LiteRT ($0/mo)</span></div>
-      <div class="b-chip"><b>OpenAI Codex CLI</b><span>config.toml MCP ($20+/mo)</span></div>
-      <div class="b-chip"><b>On-Prem Ollama Pi 5</b><span>Air-Gapped Qwen/Gemma ($0/mo)</span></div>
+      <div class="b-chip"><b>Claude Code (.mcp.json)</b><span>19 Tools + 4 Elicitations + Hooks</span></div>
+      <div class="b-chip"><b>Google Antigravity</b><span>Side-Pane MCP App Workbench</span></div>
+      <div class="b-chip"><b>OpenAI Codex CLI</b><span>~/.codex/config.toml MCP</span></div>
+      <div class="b-chip"><b>Google Gemini CLI</b><span>gemini-extension.json v0.5.0</span></div>
+      <div class="b-chip"><b>Apple Silicon MLX</b><span>Air-Gapped LAN · ITAR Safe ($0/mo)</span></div>
+      <div class="b-chip"><b>Google Gemma 4 / Ollama</b><span>Local Air-Gapped Edge ($0/mo)</span></div>
     </div>
-    <div class="note"><strong>Mandatory Safety Boundary:</strong> Deterministic default-deny software pre-flight boundary &amp; RFC 8785 SHA-256 audit layer — NEVER a replacement for hardwired ISO 13850 shop E-stops or ISO 13849-1 safety relays.</div>
+    <div class="note"><strong>Mandatory Safety &amp; ITAR/EAR Boundary:</strong> Deterministic default-deny software pre-flight gate &amp; RFC 8785 SHA-256 audit layer (zero PL/SIL credit) — NEVER a replacement for hardwired ISO 13850 E-stops or ISO 13849-1 safety relays. Keep <code>GRAFT_VAULT_API_KEY</code> unset and run local MLX/Gemma 4 for ITAR/EAR workcells.</div>
   </div>
 
 <script>
-const CELL_URL = (window.GRAFT_CELL_URL || 'http://127.0.0.1:8080').replace(/\/$/, '');
+const PLUGIN_VERSION = '0.5.0';
+const CELL_URL = (window.GRAFT_CELL_URL || 'http://127.0.0.1:8785').replace(/\/$/, '');
+const POLL_INTERVAL_MS = 2000;
 let LIVE_CONNECTED = false;
 let HOLD_LATCHED = false;
+let POLL_IN_FLIGHT = false;
+let MCP_RPC_ID = 100;
+const MCP_PENDING = new Map();
 
 const FALLBACK_INBOX = [
   {
@@ -172,6 +210,38 @@ const FALLBACK_INBOX = [
 
 function esc(s) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// MCP Apps sandboxed iframe postMessage JSON-RPC 2.0 bridge fallback
+window.addEventListener('message', (ev) => {
+  const msg = ev && ev.data;
+  if (!msg || typeof msg !== 'object' || msg.jsonrpc !== '2.0' || msg.id == null) return;
+  const pending = MCP_PENDING.get(msg.id);
+  if (!pending) return;
+  MCP_PENDING.delete(msg.id);
+  clearTimeout(pending.timer);
+  if (msg.error) pending.reject(new Error(msg.error.message || 'MCP bridge error'));
+  else pending.resolve(msg.result);
+});
+
+function callMcpAppBridge(toolName, args = {}, timeoutMs = 4000) {
+  if (!window.parent || window.parent === window) {
+    return Promise.reject(new Error('not embedded in MCP App iframe'));
+  }
+  const id = ++MCP_RPC_ID;
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      MCP_PENDING.delete(id);
+      reject(new Error('MCP App postMessage timeout'));
+    }, timeoutMs);
+    MCP_PENDING.set(id, { resolve, reject, timer });
+    window.parent.postMessage({
+      jsonrpc: '2.0',
+      id,
+      method: 'tools/call',
+      params: { name: toolName, arguments: args }
+    }, '*');
+  });
 }
 
 function renderHold(latched, mode) {
@@ -219,9 +289,41 @@ function renderInbox(items, rulesCount) {
     `${rulesCount} deterministic rule(s) active in SemanticWorldRegistry · RFC 8785 hash-chained.`;
 }
 
+function renderVaultStatus(vdata) {
+  const badge = document.getElementById('vaultDriftBadge');
+  const row = document.getElementById('vaultDetailRow');
+  if (!vdata || vdata.offline) {
+    badge.textContent = 'VAULT: OFFLINE (0 PHONE-HOME)';
+    badge.className = 'pill amber';
+    row.textContent = 'Opt-in disabled (GRAFT_VAULT_API_KEY unset · 0 network calls)';
+    return;
+  }
+  if (!vdata.ok) {
+    badge.textContent = 'VAULT: ERROR';
+    badge.className = 'pill hold';
+    row.textContent = vdata.error || 'Vault check failed';
+    return;
+  }
+  const alerts = Array.isArray(vdata.alerts) ? vdata.alerts : [];
+  const receipts = Array.isArray(vdata.receipts) ? vdata.receipts : [];
+  if (alerts.length > 0) {
+    badge.textContent = `VAULT: ${alerts.length} DRIFT ALERT${alerts.length === 1 ? '' : 'S'}`;
+    badge.className = 'pill hold';
+    row.textContent = `${receipts.length} recent receipt(s) · ${alerts.length} active drift alert(s)`;
+  } else {
+    badge.textContent = 'VAULT: 0 DRIFT ALERTS';
+    badge.className = 'pill';
+    row.textContent = `Connected · ${receipts.length} recent receipt(s) · 0 active drift alerts`;
+  }
+}
+
 function renderState(st) {
   LIVE_CONNECTED = true;
-  document.getElementById('modePill').textContent = 'CELL LIVE · v' + st.version;
+  const pill = document.getElementById('modePill');
+  pill.textContent = `CELL LIVE · v${PLUGIN_VERSION}`;
+  pill.className = 'pill';
+  document.getElementById('offlineBanner').classList.remove('show');
+  document.getElementById('pollHeartbeat').textContent = 'LIVE · 2s';
   renderHold(st.estop_latched, st.mode);
 
   const active = (st.trust_ladder && st.trust_ladder.active) || {};
@@ -246,17 +348,105 @@ function renderState(st) {
   document.getElementById('auditSummaryRow').textContent = ac.valid ? `INTACT · ${ac.record_count} recs` : 'TAMPERED';
 }
 
+function setOfflineDemoState(viaBridge = false) {
+  LIVE_CONNECTED = false;
+  const pill = document.getElementById('modePill');
+  pill.textContent = viaBridge ? `MCP BRIDGE · v${PLUGIN_VERSION}` : `OFFLINE DEMO · v${PLUGIN_VERSION}`;
+  pill.className = 'pill amber';
+  document.getElementById('offlineBanner').classList.add('show');
+  document.getElementById('pollHeartbeat').textContent = viaBridge ? 'BRIDGE' : 'OFFLINE';
+  renderHold(HOLD_LATCHED, 'sim');
+  renderInbox(FALLBACK_INBOX, 5);
+}
+
+async function refreshVaultStatus() {
+  try {
+    const res = await fetch(`${CELL_URL}/v1/vault/status?limit=20`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    renderVaultStatus(data);
+    return;
+  } catch (_err) {
+    // Fallback to MCP Apps postMessage JSON-RPC bridge if embedded in sandboxed iframe
+    try {
+      const bridgeRes = await callMcpAppBridge('graft_vault_status', { limit: 20 });
+      const sc = bridgeRes && bridgeRes.structuredContent;
+      if (sc) {
+        renderVaultStatus(sc);
+        return;
+      }
+    } catch (_bridgeErr) {
+      // Explicit offline zero-phone-home state
+    }
+    renderVaultStatus({ offline: true, ok: false, status: 'offline' });
+  }
+}
+
 async function syncFromCellConsole() {
+  if (POLL_IN_FLIGHT) return;
+  POLL_IN_FLIGHT = true;
   try {
     const res = await fetch(`${CELL_URL}/v1/console/state`);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     renderState(data);
+    await refreshVaultStatus();
   } catch (_err) {
-    LIVE_CONNECTED = false;
-    document.getElementById('modePill').textContent = 'MCP APP v0.4.1 · OFFLINE MIRROR';
-    renderHold(HOLD_LATCHED, 'sim');
-    renderInbox(FALLBACK_INBOX, 5);
+    let bridged = false;
+    try {
+      const bridgeRes = await callMcpAppBridge('graft_world_model_status', {});
+      if (bridgeRes && bridgeRes.structuredContent) {
+        bridged = true;
+      }
+    } catch (_bridgeErr) {
+      bridged = false;
+    }
+    setOfflineDemoState(bridged);
+    await refreshVaultStatus();
+  } finally {
+    POLL_IN_FLIGHT = false;
+  }
+}
+
+async function downloadCompliancePack() {
+  const btn = document.getElementById('downloadComplianceBtn');
+  const note = document.getElementById('complianceActionNote');
+  const row = document.getElementById('complianceStatusRow');
+  btn.disabled = true;
+  note.textContent = 'Generating & verifying graft-compliance-pack.zip (0 private keys)...';
+  try {
+    const res = await fetch(`${CELL_URL}/v1/compliance-pack`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const blob = await res.blob();
+    const sha = (res.headers.get('X-Graft-Manifest-Sha256') || '').slice(0, 16);
+    const filesVerified = res.headers.get('X-Graft-Files-Verified') || '?';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'graft-compliance-pack.zip';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    row.textContent = `VERIFIED (${filesVerified} files · 0 keys · sha256:${sha}...)`;
+    note.textContent = 'Downloaded verified graft-compliance-pack.zip via GET /v1/compliance-pack';
+  } catch (_err) {
+    try {
+      const bridgeRes = await callMcpAppBridge('graft_generate_compliance_pack', { workspace_dir: '.' });
+      const sc = bridgeRes && bridgeRes.structuredContent;
+      if (sc && sc.ok) {
+        const pack = sc.compliance_pack || {};
+        row.textContent = `VERIFIED via MCP Bridge (${pack.overall_status || 'OK'})`;
+        note.textContent = `Generated ${pack.zip_path || 'graft-compliance-pack.zip'} (0 private keys)`;
+        btn.disabled = false;
+        return;
+      }
+    } catch (_bridgeErr) {
+      // Offline fallback guidance
+    }
+    note.textContent = 'Local server stopped — run `robot-gate serve --dir . --port 8785` or `robot-gate compliance-pack --dir . --verify`.';
+  } finally {
+    btn.disabled = false;
   }
 }
 
@@ -296,6 +486,7 @@ async function crystallizeItem(itemId) {
 }
 
 syncFromCellConsole();
+setInterval(syncFromCellConsole, POLL_INTERVAL_MS);
 </script>
 </body>
 </html>

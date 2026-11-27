@@ -16,7 +16,7 @@ Ask **one short, friendly question at a time** (avoid robotics jargon unless the
 
 1. **Which track best describes your setup?**
    - `cnc` — **CNC / Machine Shop Owner** (Haas, Fanuc, Mazak, Okuma tending; plain-English guidance, wet-coolant slip guard, spindle/door keep-outs)
-   - `lab` — **Robotics Research Lab / Eval Team** (`uvx` + `SET-Sim` / `EV-03` reproducible benchmarks, Semantic Ratchet, Python SDK)
+   - `lab` — **Robotics Research Lab / Eval Team** (`uvx` + `EV-03` reproducible benchmarks, portable 3-datum `L0 OBSERVE` hardware harness, Semantic Ratchet, Python SDK)
    - `oem` — **Integrator / OEM / ITAR Cell** (air-gapped Apple MLX or local Gemma 4, Ed25519 key custody, signed `ROBOT.md` v1.1 fleet template)
    - `benchtop` — **Maker / Benchtop / SO-ARM101 Builder** (read-only servo probe, $0/mo local LLM, 5-minute desktop sandbox)
    - `ehs` — **EHS / Plant Safety & Insurance Auditor** (ISO 13850 & ISO 13849-1 boundary audit, fail-closed Envelope 0.2 proofs, tamper-evident SHA-256 receipts, zero-motion L0 trial)
@@ -100,7 +100,7 @@ Present the kit cleanly to the operator:
 
 Walk the operator through their **first 48 hours without moving a single motor**:
 
-1. **Hours 0–2 (Boot & Verify):** Start the local Graft Cell Console (`:8788`) in **`L0_OBSERVE`** (0% speed/force cap). Verify one in-bounds proposal logs `ALLOW (shadow)` and one keep-out or crush/slip violation logs `DENY` with an RFC 8785 SHA-256 receipt.
+1. **Hours 0–2 (Boot & Verify):** Start the local Graft Cell Console (`robot-gate serve --dir ./<robot>-cell --port 8785`) in **`L0_OBSERVE`** (0% speed/force cap). Verify one in-bounds proposal logs `ALLOW (shadow)` and one keep-out or crush/slip violation logs `DENY` with an RFC 8785 SHA-256 receipt.
 2. **Hours 2–24 (Shadow Shifts):** Let the planner/LLM observe normal shop shifts and log every proposed move alongside live sensors — zero motor power commanded.
 3. **Hours 24–48 (Receipt Review & Datum Check):** Inspect the SHA-256 shadow trial audit log (or run `/shadow-trial-audit`) to confirm zero false allows, zero stale sensors, and clean keep-out margins around the door/walkway/vise.
 4. **Graduation Gate (`L0 -> L1 ATOMIC`):** Only after 48 clean shadow hours AND verified hardwired ISO 13850 E-stop + ISO 13849-1 interlocks, promote to `L1 ATOMIC` (30% speed cap, human sign-off on every action) via `graft_trust_ladder(action="promote")` with operator elicitation sign-off.

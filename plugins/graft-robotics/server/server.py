@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
-"""Graft Robotics — Universal MCP Plugin Server v0.4.0 (Anthropic Claude Code & Google Antigravity).
+"""Graft Robotics — Universal MCP Plugin Server v0.5.0 (Claude Code, Antigravity, Codex CLI & Gemini CLI).
 
-Utilizes the FULL Anthropic MCP & Claude Code Plugin capability surface:
-  1. MCP App (`ui://graft-robotics/workbench.html` · `text/html;profile=mcp-app`)
-  2. MCP Elicitations (`ctx.elicit(...)` Form Mode with Pydantic schemas for human-in-the-loop
+Utilizes the FULL Anthropic MCP & Multi-Client Plugin capability surface:
+  1. MCP App (`ui://graft-robotics/workbench.html` · `text/html;profile=mcp-app`) — live Wedge A-Upmarket
+     Workbench with 2s polling, 1-click Compliance Pack ZIP download, Vault Drift Status badge, and
+     sandboxed iframe `postMessage` JSON-RPC fallback
+  2. MCP Elicitations (`ctx.elicit(...)` Form Mode with Pydantic schemas for fail-closed human-in-the-loop
      Trust Ladder promotion, L1 Semantic Ratchet confirmation, Skill Pack setup, and Remote Shop Onboarding)
-  3. MCP Prompts / Playbooks (`@mcp.prompt()` — 6 operational robotics playbooks matching `commands/*.md`)
-  4. MCP Resources (`@mcp.resource()` — live World Model JSON, Trust Ladder JSON, Pi 5 Benchmarks JSON,
-     and ISO 13850 Safety Boundary Markdown)
-  5. 15 MCP Tools covering Remote Shop Onboarding Kit generation, Multi-Sensor World Model, LAN LiDAR `.obj`
-     meshing (Rust `graft-core`), Material Mechanics/Slip, Semantic-to-Deterministic Ratchet, L0-L3 Trust Ladder,
-     Ambient Wi-Fi/Audio/Video Device Discovery, Job Skill Packs, Turn-Key Client Bundles (`uv` first), and
-     RoboCurve SET-Sim rehearsal.
+  3. MCP Prompts / Playbooks (`@mcp.prompt()` — 7 operational robotics playbooks matching `commands/*.md`,
+     including `/ros2-compliance-audit`)
+  4. MCP Resources (`@mcp.resource()` — 5 live resources: Workbench HTML, World Model JSON, Trust Ladder JSON,
+     Pi 5 Benchmarks JSON, and ISO 13850 Safety Boundary Markdown)
+  5. 19 MCP Tools covering ROS 2 Pre-Flight Launch Bundle generation (`graft_ros2_generate_bundle`),
+     opt-in Cloudflare D1 Hosted Fleet Vault status (`graft_vault_status`, zero phone-home when unset),
+     universal 6-client Agent Connect (`graft_connect_agent`), 1-Click ISO 10218:2025 & EU 2023/1230
+     Compliance Dossier export & offline verification, Remote Shop Onboarding Kit generation, Multi-Sensor
+     World Model, LAN LiDAR `.obj` meshing (Rust `graft-core`), Material Mechanics/Slip, Semantic-to-Deterministic
+     Ratchet, fail-closed L0-L3 Trust Ladder, Ambient Wi-Fi/Audio/Video Device Discovery, Job Skill Packs,
+     Turn-Key Client Bundles (`uv` first), and quarantined SET-Sim honesty disclosure / hardware redirect.
 
 Compatible with BOTH `mcp 1.x` (`FastMCP`) and `mcp 2.x` (`MCPServer`).
 """
@@ -33,19 +39,50 @@ try:
 except ImportError:  # mcp >= 2.0 renamed FastMCP -> MCPServer
     from mcp.server.mcpserver import Context, MCPServer as FastMCP  # type: ignore
 
-# Ensure local robot-gate + bounded-embodiment + graft-eval are importable when available
-for _candidate in (
-    "/home/craigm26/projects/physical-ai-venture/robot-gate/src",
-    "/home/craigm26/projects/physical-ai-venture/robot-gate/.venv/lib/python3.13/site-packages",
-    "/home/craigm26/projects/physical-ai-venture/graft-eval",
-):
-    if os.path.isdir(_candidate) and _candidate not in sys.path:
-        sys.path.append(_candidate)
+PLUGIN_VERSION = "0.5.0"
+
+
+def _resolve_workspace_dir() -> Path | None:
+    """Resolve the Graft Robotics workspace portably via env var, relative parents, or ~/projects."""
+    env_ws = os.environ.get("GRAFT_WORKSPACE_DIR")
+    if env_ws:
+        p = Path(env_ws).expanduser()
+        if p.is_dir():
+            return p
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        if (parent / "robot-gate" / "src").is_dir():
+            return parent
+    home_ws = Path.home() / "projects" / "physical-ai-venture"
+    if (home_ws / "robot-gate" / "src").is_dir():
+        return home_ws
+    return None
+
+
+_WORKSPACE_DIR = _resolve_workspace_dir()
+if _WORKSPACE_DIR is not None:
+    _path_candidates: list[Path] = [
+        _WORKSPACE_DIR / "robot-gate" / "src",
+        _WORKSPACE_DIR / "graft-eval",
+    ]
+    _venv_lib = _WORKSPACE_DIR / "robot-gate" / ".venv" / "lib"
+    if _venv_lib.is_dir():
+        _path_candidates.extend(sorted(_venv_lib.glob("python*/site-packages")))
+    for _candidate in _path_candidates:
+        _cstr = str(_candidate)
+        if _candidate.is_dir() and _cstr not in sys.path:
+            sys.path.append(_cstr)
 
 APP_URI = "ui://graft-robotics/workbench.html"
 HTML_PATH = Path(os.environ.get("GRAFT_ROBOTICS_APP_HTML", Path(__file__).with_name("workbench.html")))
+CELL_CONSOLE_URL = os.environ.get("GRAFT_CELL_URL", "http://127.0.0.1:8785").rstrip("/")
 LIVE_RUNNER_URL = os.environ.get("GRAFT_LIVE_RUNNER_URL", "http://127.0.0.1:8791").rstrip("/")
-BENCHMARKS_DIR = Path("/home/craigm26/projects/physical-ai-venture/site/public/benchmarks")
+BENCHMARKS_DIR = Path(
+    os.environ.get(
+        "GRAFT_BENCHMARKS_DIR",
+        str((_WORKSPACE_DIR / "site" / "public" / "benchmarks") if _WORKSPACE_DIR else Path(__file__).resolve().parent / "benchmarks"),
+    )
+)
 
 PANE_META = {
     "ui": {"resourceUri": APP_URI},
@@ -380,7 +417,7 @@ _ONBOARD_PERSONAS: dict[str, dict[str, Any]] = {
         "max_contact_force_n": 35.0,
         "coolant_wet_default": False,
         "datums": ["bench_origin", "eval_tray_datum", "drop_zone_datum"],
-        "plain_english_focus": "Reproducible uvx + EV-03 / SET-Sim benchmark workflow, Semantic-to-Deterministic Ratchet, and Python SDK integration.",
+        "plain_english_focus": "Reproducible uvx + EV-03 verification workflow, portable 3-datum L0 OBSERVE hardware onboarding, Semantic-to-Deterministic Ratchet, and Python SDK integration.",
     },
     "oem": {
         "label": "Integrator / OEM / ITAR Cell",
@@ -700,15 +737,21 @@ def _build_onboarding_kit(
         budget_tier=persona["budget_tier"],
         hardware_target=persona["hardware_target"],
     )
+    cell_dir = f"./{rname}" if rname.endswith("-cell") else f"./{rname}-cell"
     cli_onboard_cmd = (
-        f"uvx --from robot-gate robot-gate onboard --persona {ut} --mode {depth} "
-        f"--hand-family {hf} --ai-tier {ai_norm} --robot-name {rname} --out ./{rname}-cell"
+        f"robot-gate onboard --persona {ut} --mode {depth} "
+        f"--hand-family {hf} --ai-tier {ai_norm} --robot-name {rname} --out {cell_dir} --non-interactive"
     )
+    serve_cmd = f"robot-gate serve --dir {cell_dir} --port 8785"
     install_commands = [
+        "# 1. Install published Apache-2.0 RRF core packages (PyPI):",
         bundle["install_commands"][0],
+        "# 2. Install Graft Robotics local on-robot gate & Cell Console from your checkout:",
+        "uv pip install -e ./robot-gate[server]",
+        "# 3. Scaffold your signed ROBOT.md v1.1 cell in zero-motion L0 OBSERVE:",
         cli_onboard_cmd,
-        f"# Start local Graft Cell Console in zero-motion L0 OBSERVE on :8788:",
-        f"uv run robot-gate serve --manifest ./{rname}-cell/ROBOT.md --mode sim --port 8788",
+        "# 4. Start local Graft Cell Console in zero-motion L0 OBSERVE on :8785:",
+        serve_cmd,
         *bundle["install_commands"][1:],
     ]
 
@@ -718,7 +761,7 @@ def _build_onboarding_kit(
         f"Focus: {persona['plain_english_focus']}\n"
         "Coaching rules:\n"
         "1. Speak in plain shop English — zero robotics or CNC jargon unless the operator asks for advanced math.\n"
-        "2. Ask the operator for 1–2 wide phone photos of the workspace (or a plain-English layout description if ITAR/camera-restricted). "
+        "2. Ask the operator for 1–2 wide phone photos of the workspace (or a plain-English layout if ITAR/camera-restricted). "
         "Conservatively identify walkways, machine door sweeps, spinning spindles, overhead fixtures, electrical cabinets, and unlabeled chemical jugs.\n"
         "3. Never claim Graft software replaces a physical E-stop. Confirm hardwired ISO 13850 red E-stop + ISO 13849-1 door interlocks before any motion.\n"
         f"4. Verify Hand HAL (`{hf}`) limits and walk through teaching datums ({datums_yaml}) ONLY after a clean 48-hour zero-motion L0 OBSERVE shadow trial.\n"
@@ -729,13 +772,13 @@ def _build_onboarding_kit(
         "starting_level": "L0_OBSERVE",
         "physical_motion_allowed": False,
         "duration_hours": 48,
-        "console_url_local": "http://127.0.0.1:8788/",
+        "console_url_local": f"{CELL_CONSOLE_URL}/",
         "phases": [
             {
                 "window": "Hours 0–2: Boot & Deterministic Dry-Run",
                 "steps": [
-                    f"Save and Ed25519-sign `./{rname}-cell/ROBOT.md` v1.1 (or run `{cli_onboard_cmd}`).",
-                    "Boot the local Graft Cell Console on `:8788` in `sim` / `L0_OBSERVE` (0% speed/force cap).",
+                    f"Save and Ed25519-sign `{cell_dir}/ROBOT.md` v1.1 (or run `{cli_onboard_cmd}`).",
+                    f"Boot the local Graft Cell Console (`{serve_cmd}`) in `L0_OBSERVE` (0% speed/force cap) and open `{CELL_CONSOLE_URL}/`.",
                     "Run 1 in-bounds test proposal (`ALLOW` shadow receipt) and 1 keep-out / slip violation (`DENY` receipt) and verify RFC 8785 SHA-256 hashes.",
                 ],
             },
@@ -840,19 +883,21 @@ def resource_trust_ladder() -> str:
 
 @mcp.resource(
     "graft://benchmarks/latest",
-    name="Latest Verified Pi 5 Benchmarks & SET-Sim Report",
-    description="Reproducible 4-layer graft-eval scorecard (including RoboHarm Tier 0-3 ratchet & RoboCurve SET-Sim MuJoCo 4.0 results).",
+    name="Latest Verified Pi 5 Benchmarks & EV-03 Rehearsal Report",
+    description="Reproducible 4-layer graft-eval scorecard (Rust graft-core, graft-watchdog, 254/0 hostile fuzzing, EV-03 rehearsal). Note: legacy kinematic SET-Sim is quarantined pending real-contact hardware evaluation.",
     mime_type="application/json",
 )
 def resource_benchmarks() -> str:
-    out: dict[str, Any] = {"benchmarks_url": "https://graftrobotics.ai/benchmarks/"}
-    for key, fname in (("graft_eval", "graft-eval-report.json"), ("set_sim", "set-sim-report.json")):
-        p = BENCHMARKS_DIR / fname
-        if p.exists():
-            try:
-                out[key] = json.loads(p.read_text(encoding="utf-8"))
-            except Exception:
-                pass
+    out: dict[str, Any] = {
+        "benchmarks_url": "https://graftrobotics.ai/benchmarks/",
+        "set_sim_status": "QUARANTINED — legacy kinematic SET-Sim disabled contact physics (contype='0') and analytically contracted jitter (cx_est *= 0.35); do not cite 36/36. Use graft_generate_onboarding_kit / remote-shop-onboarding for real hardware onboarding.",
+    }
+    p = BENCHMARKS_DIR / "graft-eval-report.json"
+    if p.exists():
+        try:
+            out["graft_eval"] = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            pass
     return json.dumps(out, indent=2)
 
 
@@ -916,7 +961,7 @@ def prompt_shadow_trial_audit(cell_name: str = "Cell-01") -> str:
     return (
         f"Run the Graft Robotics Zero-Motion L0 Shadow Trial Playbook for `{cell_name}`:\n"
         f"1. Verify all robots are in `L0_OBSERVE` via `graft_trust_ladder(action='status')`.\n"
-        f"2. Read `graft://benchmarks/latest` to show the customer our signed Pi 5 EV-03 verification bundle and SET-Sim rehearsal results.\n"
+        f"2. Read `graft://benchmarks/latest` to show the customer our signed Pi 5 EV-03 rehearsal bundle and Rust kernel stress results.\n"
         f"3. Inspect `graft_world_model_status` and summarize how many proposals would be allowed vs. caught before a single motor ever moves.\n"
         f"4. Present the signed SHA-256 Shadow Trial Receipt and clear criteria for human-approved promotion to `L1 ATOMIC`."
     )
@@ -936,7 +981,7 @@ def prompt_semantic_hazard_ratchet(verb: str = "pour", source_object_id: str = "
 
 
 @mcp.prompt(
-    name="remote_shop_onboarding",
+    name="remote-shop-onboarding",
     description="Act as a plain-English Remote Shop Onboarding Specialist (zero FDE / zero machinist needed): phone-photo hazard review, ISO 13850 E-stop check, 6 Hand HAL families, onboarding kit & 48h L0 shadow trial.",
 )
 def prompt_remote_shop_onboarding(
@@ -955,8 +1000,8 @@ def prompt_remote_shop_onboarding(
         f"4. Help the operator select one of the 6 Hand HAL families (`parallel_2f`, `concentric_3f`, `dexterous_5f`, `vacuum_suction`, `magnetic_atc`, `bimanual_coordinated`) "
         f"and their AI tier (`claude`, `antigravity`, `codex`, `apple_mlx`, `google_gemma4`, `ollama`).\n"
         f"5. Call `graft_generate_onboarding_kit(user_type='{user_type}', setup_depth='{setup_depth}', organization='{organization}', interactive=True)` "
-        f"(or pass the collected fields explicitly) to generate their `ROBOT.md` v1.1, `uv`-first install commands, LLM coach prompt, and link to https://graftrobotics.ai/onboard/.\n"
-        f"6. Launch their first **48-hour zero-motion `L0 OBSERVE` shadow trial** on `:8788` before ever teaching datums or promoting to `L1 ATOMIC`."
+        f"(or pass the collected fields explicitly) to generate their `ROBOT.md` v1.1, working install & `robot-gate serve --dir ... --port 8785` commands, LLM coach prompt, and link to https://graftrobotics.ai/onboard/.\n"
+        f"6. Launch their first **48-hour zero-motion `L0 OBSERVE` shadow trial** on `{CELL_CONSOLE_URL}/` before ever teaching datums or promoting to `L1 ATOMIC`."
     )
 
 
@@ -974,8 +1019,29 @@ def prompt_incident_estop_recovery(robot_id: str = "ur5e") -> str:
     )
 
 
+@mcp.prompt(
+    name="ros2-compliance-audit",
+    description="End-to-end ROS 2 Pre-Flight Gate & ISO 10218:2025 / EU (2023/1230) Compliance Audit (ros2-bridge -> check -> compliance-pack --verify -> opt-in vault push -> Cloudflare cloudflare-build.sh).",
+)
+def prompt_ros2_compliance_audit(
+    workspace_dir: str = ".",
+    stack: str = "moveit2",
+    embodiment: str = "ur5e",
+) -> str:
+    return (
+        f"Execute the Graft Robotics ROS 2 Pre-Flight & Compliance Audit Playbook for `{embodiment}` "
+        f"(`stack={stack}`, `workspace_dir={workspace_dir}` — Zero GitHub Actions, Cloudflare-only):\n"
+        f"1. Read `graft://safety/boundary-policy` and confirm hardwired ISO 13850 E-stops, ISO 13849-1 safety relays/interlocks, and ITAR/EAR air-gap posture.\n"
+        f"2. Call `graft_ros2_generate_bundle(workspace_dir='{workspace_dir}', output_dir='{workspace_dir}/ros2_bundle', stack='{stack}', embodiment='{embodiment}', frame_id='base_link')` (or run `robot-gate ros2-bridge`).\n"
+        f"3. Run the 4-stage deterministic pre-flight gate (`robot-gate check --dir '{workspace_dir}' --sim-only`) to emit a signed `gate_receipt.json` matching the live workspace fingerprint.\n"
+        f"4. Call `graft_generate_compliance_pack(workspace_dir='{workspace_dir}')` (or `robot-gate compliance-pack --dir '{workspace_dir}' --verify`) and confirm `valid=True` with 0 private keys / 0 `.pem` files.\n"
+        f"5. Call `graft_vault_status(robot_id='{embodiment}', limit=20)` — verify zero phone-home when `GRAFT_VAULT_API_KEY` is unset, or review drift alerts after an opt-in `robot-gate vault push` (non-ITAR/EAR cells only).\n"
+        f"6. Wire `./scripts/cloudflare-build.sh` into Cloudflare Pages/Workers CI/CD (Zero GitHub Actions)."
+    )
+
+
 # ==============================================================================
-# MCP TOOLS (15 TOOLS INCLUDING ELICITATION-ENABLED HUMAN APPROVAL GATES)
+# MCP TOOLS (19 TOOLS INCLUDING ROS 2 BUNDLE, FLEET VAULT, AGENT CONNECT & COMPLIANCE PACK)
 # ==============================================================================
 @mcp.tool(name="open_graft_workbench", title="Graft Robotics Workbench", meta=PANE_META)
 def open_graft_workbench() -> types.CallToolResult:
@@ -1092,7 +1158,8 @@ async def graft_trust_ladder(
             out = json.loads(res["result"]["content"][0]["text"])
             return _result(f"Day-1 L1 small-object pick result: {out.get('trust_progress', out)}", out)
     elif action == "promote":
-        # Use native MCP Form Elicitation when supported to enforce human-in-the-loop promotion sign-off!
+        # Fail-closed human-in-the-loop promotion gate: requires interactive MCP Form Elicitation
+        # confirming both promotion AND physical ISO 13850 E-stop readiness.
         e_action, e_data = await _try_elicit(
             ctx,
             f"Operator sign-off required to promote '{robot_id}' one level on the Graft Trust Ladder (L0->L3). Confirm physical ISO 13850 E-stop is verified.",
@@ -1102,11 +1169,29 @@ async def graft_trust_ladder(
             if not (e_data.confirm_promotion and e_data.hardware_estop_verified):
                 return _result(
                     f"Trust promotion HELD for '{robot_id}': operator must confirm both promotion and physical ISO 13850 E-stop readiness.",
-                    {"promoted": False, "elicitation": "rejected_safety_checkbox"},
+                    {"promoted": False, "fail_closed": True, "elicitation": "rejected_safety_checkbox"},
                 )
             operator = e_data.operator_name or operator
         elif e_action in ("decline", "cancel"):
-            return _result(f"Trust promotion cancelled by operator for '{robot_id}'.", {"promoted": False, "elicitation": e_action})
+            return _result(
+                f"Trust promotion cancelled by operator for '{robot_id}'.",
+                {"promoted": False, "fail_closed": True, "elicitation": e_action},
+            )
+        else:
+            # FAIL CLOSED when MCP client does not support elicitation (e_action == "unsupported")
+            # or returned no structured confirmation data — NEVER silently promote!
+            return _result(
+                f"Trust promotion REFUSED (fail-closed) for '{robot_id}': this MCP client does not support interactive "
+                f"Form Elicitation (ctx.elicit), so operator + physical ISO 13850 E-stop confirmation could not be verified. "
+                f"Confirm promotion in a client supporting MCP elicitation or via the authenticated local Graft Cell Console ({CELL_CONSOLE_URL}).",
+                {
+                    "promoted": False,
+                    "fail_closed": True,
+                    "elicitation": e_action,
+                    "robot_id": robot_id,
+                    "cell_console_url": CELL_CONSOLE_URL,
+                },
+            )
 
         res = _http_post_json(
             f"{LIVE_RUNNER_URL}/mcp",
@@ -1357,9 +1442,14 @@ def graft_ingest_ambient_signal(
     )
 
     if modality == "audio_mic":
-        d = evaluate_audio_signal(sensor_id=sensor_id, db_spl=88.0, chatter_score=chatter_score, transcript=transcript)
+        d = evaluate_audio_signal(sensor_id=sensor_id, db_spl=72.0, chatter_score=chatter_score, transcript=transcript)
     elif modality == "video_webcam":
-        d = evaluate_video_signal(sensor_id=sensor_id, human_count=max(1, human_count), nearest_human_m=estimated_distance_m)
+        hc = max(0, int(human_count))
+        d = evaluate_video_signal(
+            sensor_id=sensor_id,
+            human_count=hc,
+            nearest_human_m=estimated_distance_m if hc > 0 else None,
+        )
     else:
         d = evaluate_wifi_motion_signal(sensor_id=sensor_id, rssi_dbm_samples=[-40.0, -49.0, -37.0, -48.0], estimated_distance_m=estimated_distance_m)
     return _result(f"Ambient [{d.action}] ({modality}): {d.reason}", d.__dict__)
@@ -1423,19 +1513,260 @@ async def graft_generate_onboarding_kit(
     return _result(summary, kit)
 
 
-@mcp.tool(name="graft_run_set_benchmark", title="Run RoboCurve SET-Sim Benchmark (MuJoCo 4.0)", meta=INLINE_META)
+@mcp.tool(name="graft_run_set_benchmark", title="SET-Sim Quarantine Notice & Real Hardware Onboarding", meta=INLINE_META)
 def graft_run_set_benchmark() -> types.CallToolResult:
-    """Return or run the MuJoCo 4.0.1 rehearsal of RoboCurve's Six Easy Tasks (SET) comparing open-loop vs. Graft closed-loop harness."""
-    rep_path = BENCHMARKS_DIR / "set-sim-report.json"
-    if rep_path.exists():
-        rep = json.loads(rep_path.read_text(encoding="utf-8"))
-        s = rep["summary"]
+    """Disclose the quarantine status of legacy kinematic SET-Sim (36/36) and direct operators to real hardware onboarding."""
+    payload = {
+        "ok": False,
+        "status": "QUARANTINED",
+        "quarantined_artifact": "graft-eval/set_benchmark_sim.py",
+        "reasons": [
+            "All 6 legacy SET-Sim MuJoCo XMLs disabled contact physics globally (`<geom contype='0' conaffinity='0'/>`) and had zero robot arms or F/T sensors.",
+            "The closed-loop search loop analytically contracted ground-truth jitter (`cx_est *= 0.35`), mathematically guaranteeing 36/36.",
+            "Legacy kinematic SET-Sim is quarantined pending real-contact simulation rewrite or uncut physical Bob (`SO-ARM101`) hardware evaluation.",
+        ],
+        "recommended_next_steps": [
+            "Use `graft_generate_onboarding_kit` or the `/remote-shop-onboarding` playbook to generate a real `L0 OBSERVE` hardware onboarding kit.",
+            "Download the printable 3-datum calibration mat at https://graftrobotics.ai/set/ for repeatable physical benchtop trials.",
+            "Inspect genuinely verified ARM64 Pi 5 Rust kernel, 254/0 hostile fuzzing, and signed EV-03 rehearsal benchmarks via `graft://benchmarks/latest`.",
+        ],
+        "onboard_studio_url": "https://graftrobotics.ai/onboard/",
+        "set_hardware_hub_url": "https://graftrobotics.ai/set/",
+    }
+    return _result(
+        "SET-Sim QUARANTINED: Legacy kinematic SET-Sim (36/36) is deprecated and must NOT be cited as contact physics or RoboCurve benchmark parity "
+        "(collisions were disabled via contype='0' and jitter was analytically contracted via cx_est *= 0.35). "
+        "For real hardware onboarding and physical proof, run `graft_generate_onboarding_kit` or `/remote-shop-onboarding`, and see https://graftrobotics.ai/set/.",
+        payload,
+    )
+
+
+@mcp.tool(
+    name="graft_generate_compliance_pack",
+    title="Generate ISO 10218:2025 & EU 2023/1230 Compliance Pack",
+    meta=INLINE_META,
+)
+def graft_generate_compliance_pack(
+    workspace_dir: str = ".",
+    output_dir: str = "",
+    zip_filename: str = "graft-compliance-pack.zip",
+    organization: str = "",
+    embodiment: str = "",
+) -> types.CallToolResult:
+    """Generate and offline-verify a tamper-evident ISO 10218:2025 & EU (2023/1230) compliance dossier ZIP for a robot-gate workspace (fail-closed; strictly excludes all private keys)."""
+    ws = Path(workspace_dir).expanduser().resolve()
+    if not ws.is_dir():
         return _result(
-            f"SET-Sim (MuJoCo 4.0 Rehearsal · NOT real hardware): Open-Loop {s['open_loop_passed']}/{s['total_trials']} ({s['open_loop_pct']}%) "
-            f"vs. Graft Closed-Loop {s['graft_harness_passed']}/{s['total_trials']} ({s['graft_harness_pct']}%) | 0 bounds violations.",
-            rep,
+            f"Compliance pack FAILED (fail-closed): workspace directory does not exist: {ws}",
+            {
+                "ok": False,
+                "valid": False,
+                "fail_closed": True,
+                "error": f"workspace_dir not found: {ws}",
+            },
         )
-    return _result("SET-Sim report not found yet; run graft-eval/set_benchmark_sim.py.", {"ok": False})
+
+    out_path = Path(output_dir).expanduser().resolve() if output_dir.strip() else None
+    safe_zip_name = Path(zip_filename.strip()).name if zip_filename.strip() else "graft-compliance-pack.zip"
+    if not safe_zip_name.lower().endswith(".zip"):
+        safe_zip_name += ".zip"
+
+    try:
+        from robot_gate.compliance_pack import (
+            ISO_13850_HARDWARE_BOUNDARY_ATTESTATION,
+            generate_compliance_pack,
+            verify_compliance_pack,
+        )
+
+        pack = generate_compliance_pack(
+            ws,
+            output_dir=out_path,
+            zip_filename=safe_zip_name,
+            organization=organization.strip() or None,
+            embodiment=embodiment.strip() or None,
+        )
+        verification = verify_compliance_pack(pack.zip_path)
+    except Exception as exc:
+        return _result(
+            f"Compliance pack generation FAILED (fail-closed): {exc}",
+            {
+                "ok": False,
+                "valid": False,
+                "fail_closed": True,
+                "workspace_dir": str(ws),
+                "error": str(exc),
+            },
+        )
+
+    if not verification.valid:
+        return _result(
+            f"Compliance pack FAILED offline verification (fail-closed): {'; '.join(verification.errors)}",
+            {
+                "ok": False,
+                "valid": False,
+                "fail_closed": True,
+                "zip_path": str(pack.zip_path),
+                "manifest_sha256": pack.manifest_sha256,
+                "verification": verification.to_dict(),
+            },
+        )
+
+    payload: dict[str, Any] = {
+        "ok": True,
+        "valid": True,
+        "plugin_version": PLUGIN_VERSION,
+        "compliance_pack": pack.to_dict(),
+        "verification": verification.to_dict(),
+        "security_exclusions": dict(pack.manifest.get("security_exclusions", {})),
+        "private_keys_exposed": False,
+        "safety_boundary": ISO_13850_HARDWARE_BOUNDARY_ATTESTATION,
+        "compliance_studio_url": "https://graftrobotics.ai/compliance/",
+    }
+    return _result(
+        f"Compliance pack VERIFIED [{pack.overall_status} · {pack.readiness_score_pct}%]: "
+        f"{pack.zip_path} ({verification.files_verified} files verified, 0 private keys, "
+        f"manifest_sha256={pack.manifest_sha256}).",
+        payload,
+    )
+
+
+@mcp.tool(
+    name="graft_ros2_generate_bundle",
+    title="Generate ROS 2 Pre-Flight Launch Bundle",
+    meta=INLINE_META,
+)
+def graft_ros2_generate_bundle(
+    workspace_dir: str = ".",
+    output_dir: str = "./ros2_bundle",
+    stack: str = "moveit2",
+    embodiment: str = "ur5e",
+    frame_id: str = "base_link",
+) -> types.CallToolResult:
+    """Generate a drop-in ROS 2 pre-flight boundary launch bundle (`graft_ros2_gate.launch.py`, `graft_ros2_params.yaml`, `README_ROS2.md`) via `robot_gate.ros2_adapter.generate_ros2_launch_bundle()`."""
+    ws = Path(workspace_dir).expanduser().resolve()
+    if not ws.is_dir():
+        return _result(
+            f"ROS 2 bundle generation FAILED (fail-closed): workspace directory does not exist: {ws}",
+            {
+                "ok": False,
+                "fail_closed": True,
+                "plugin_version": PLUGIN_VERSION,
+                "error": f"workspace_dir not found: {ws}",
+            },
+        )
+    out = Path(output_dir).expanduser()
+    if not out.is_absolute():
+        out = (ws / out).resolve()
+    else:
+        out = out.resolve()
+
+    try:
+        from robot_gate.ros2_adapter import generate_ros2_launch_bundle
+
+        bundle = generate_ros2_launch_bundle(
+            ws,
+            out,
+            embodiment=embodiment.strip() or None,
+            stack=stack.strip() or "moveit2",
+            frame_id=frame_id.strip() or "base_link",
+        )
+    except Exception as exc:
+        return _result(
+            f"ROS 2 bundle generation FAILED (fail-closed): {exc}",
+            {
+                "ok": False,
+                "fail_closed": True,
+                "plugin_version": PLUGIN_VERSION,
+                "workspace_dir": str(ws),
+                "error": str(exc),
+            },
+        )
+
+    payload: dict[str, Any] = {
+        "ok": True,
+        "plugin_version": PLUGIN_VERSION,
+        "frame_id": frame_id.strip() or "base_link",
+        **bundle,
+    }
+    return _result(
+        f"ROS 2 launch bundle ready for '{bundle['embodiment']}' (stack={bundle['stack']}, frame={payload['frame_id']}) "
+        f"at {bundle['output_dir']} -> graft_ros2_gate.launch.py, graft_ros2_params.yaml, README_ROS2.md.",
+        payload,
+    )
+
+
+@mcp.tool(
+    name="graft_vault_status",
+    title="Check Opt-In Hosted Fleet Vault Status",
+    meta=INLINE_META,
+)
+def graft_vault_status(
+    robot_id: str | None = None,
+    limit: int = 20,
+) -> types.CallToolResult:
+    """Query the opt-in Cloudflare D1 Hosted Fleet Vault for compliance receipts and drift alerts (100% opt-in / zero phone-home when GRAFT_VAULT_API_KEY is unset)."""
+    from robot_gate.vault_client import fetch_vault_status
+
+    res = fetch_vault_status(robot_id=robot_id, limit=limit)
+    data: dict[str, Any] = {
+        "plugin_version": PLUGIN_VERSION,
+        **res.to_dict(),
+    }
+    if res.offline:
+        summary = (
+            "Hosted Fleet Vault OFFLINE (zero phone-home): GRAFT_VAULT_API_KEY is unset, "
+            "so ZERO network calls were made. Set GRAFT_VAULT_API_KEY only for opt-in non-ITAR/EAR sync."
+        )
+    elif res.ok:
+        summary = (
+            f"Hosted Fleet Vault ONLINE: {len(res.receipts)} receipt(s), "
+            f"{len(res.alerts)} active drift alert(s)."
+        )
+    else:
+        summary = f"Hosted Fleet Vault error (http={res.http_status}): {res.error}"
+    return _result(summary, data)
+
+
+@mcp.tool(
+    name="graft_connect_agent",
+    title="Connect Any LLM Client to Any Robot (L0 OBSERVE)",
+    meta=INLINE_META,
+)
+def graft_connect_agent(
+    client: str = "claude",
+    robot: str = "ur5e",
+    environment: str = "industrial",
+    include_vault: bool = False,
+) -> types.CallToolResult:
+    """Generate exact copy-paste MCP client config (Claude .mcp.json, Antigravity mcp_config.json, Codex ~/.codex/config.toml, Gemini gemini-extension.json, Apple MLX, Google Gemma 4 / Ollama), an L0 OBSERVE starter prompt, and mandatory ISO 13850 & ITAR/EAR boundary disclosures."""
+    try:
+        from robot_gate.mcp_server import build_connect_agent_bundle
+
+        bundle = build_connect_agent_bundle(
+            client=client,
+            robot=robot,
+            environment=environment,
+            include_vault=include_vault,
+            plugin_version=PLUGIN_VERSION,
+        )
+    except ValueError as exc:
+        return _result(
+            f"Connect agent configuration FAILED: {exc}",
+            {
+                "ok": False,
+                "fail_closed": True,
+                "plugin_version": PLUGIN_VERSION,
+                "error": str(exc),
+            },
+        )
+
+    vault_tag = "vault=OPT-IN" if bundle["include_vault_effective"] else "vault=OFFLINE(0 phone-home)"
+    summary = (
+        f"Agent Connect v{PLUGIN_VERSION} ready for {bundle['client_label']} -> "
+        f"{bundle['robot_label']} ({bundle['environment']}, {vault_tag}, starting in L0_OBSERVE). "
+        f"Config file: {bundle['config_filename']}. Studio: {bundle['connect_studio_url']}"
+    )
+    return _result(summary, bundle)
 
 
 if __name__ == "__main__":

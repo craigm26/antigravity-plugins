@@ -2,11 +2,11 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "mcp__graft-robotics__(graft_trust_ladder|graft_check_semantic_action|graft_ingest_lan_lidar)",
+        "matcher": "mcp__(graft-robotics|workbench)__(graft_trust_ladder|graft_check_semantic_action|graft_ingest_lan_lidar|graft_ratchet_semantic_tag|graft_install_skill_pack|graft_generate_onboarding_kit|graft_ros2_generate_bundle|graft_generate_compliance_pack|graft_connect_agent)",
         "hooks": [
           {
             "type": "command",
-            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"Graft Robotics Guardrail: Software pre-flight checks and MCP Elicitations never replace a certified hardwired ISO 13850 shop E-stop. Verify physical clearance and signed ROBOT.md bounds before authorizing motion.\"}}'"
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"Graft Robotics Guardrail: Software pre-flight checks, compliance packs, ROS 2 launch bundles, and MCP Elicitations never replace a certified hardwired ISO 13850 shop E-stop or ISO 13849-1 safety relays. Verify physical clearance, ITAR/EAR air-gap requirements, and signed ROBOT.md bounds before authorizing motion.\"}}'"
           }
         ]
       }

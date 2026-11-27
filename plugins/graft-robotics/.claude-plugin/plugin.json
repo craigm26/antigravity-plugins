@@ -1,7 +1,7 @@
 {
   "name": "graft-robotics",
-  "version": "0.4.1",
-  "description": "Pair Claude, Antigravity, Codex, Gemini, or an offline local LLM safely with physical robots. Includes 15 MCP tools, interactive MCP App Workbench, 4 Form Elicitations (ctx.elicit) for L0-L3, Semantic Ratchet & remote onboarding approvals, 6 operational Playbooks (MCP Prompts + slash commands), 5 live MCP Resources, PreToolUse safety hooks, 6-family Hand HAL, Rust graft-core LAN LiDAR meshing, and RoboCurve SET-Sim rehearsal.",
+  "version": "0.5.0",
+  "description": "Pair Claude Code, Antigravity, Codex CLI, Gemini CLI, Apple Silicon MLX, or local Gemma 4 safely with physical robots. Includes 19 MCP tools (ROS 2 launch bundle generator, opt-in Cloudflare D1 Fleet Vault status, 6-client Agent Connect, 1-click ISO 10218:2025 & EU 2023/1230 Compliance Dossier ZIP), live Wedge A-Upmarket MCP App Workbench, 4 Form Elicitations (ctx.elicit), 7 operational Playbooks (incl. /ros2-compliance-audit), 5 live MCP Resources, PreToolUse safety hooks, 6-family Hand HAL, and Rust graft-core LAN LiDAR meshing.",
   "author": {
     "name": "Craig Merry",
     "email": "craigm26@gmail.com",
@@ -9,5 +9,5 @@
   },
   "homepage": "https://graftrobotics.ai",
   "license": "Apache-2.0",
-  "keywords": ["robotics", "physical-ai", "mcp-app", "elicitations", "playbooks", "mujoco", "cnc", "bounded-embodiment", "robot-md", "cobot", "humanoid"]
+  "keywords": ["robotics", "physical-ai", "ros2", "moveit2", "iso-10218", "eu-2023-1230", "compliance", "mcp-app", "elicitations", "playbooks", "mujoco", "cnc", "bounded-embodiment", "robot-md", "cobot", "humanoid"]
 }

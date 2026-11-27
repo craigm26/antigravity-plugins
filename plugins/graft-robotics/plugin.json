@@ -1,8 +1,8 @@
 {
   "name": "graft-robotics",
   "displayName": "Graft Robotics",
-  "version": "0.4.1",
-  "description": "Bounded Physical AI & CNC Shop MCP App (15 MCP tools, 6 operational Playbooks, 4 Form Elicitations, 5 live Resources, PreToolUse Hooks): interactive Graft Workbench side pane, 6-family Hand HAL, multi-sensor LAN LiDAR mesh fusion, Semantic-to-Deterministic Ratchet, material crush/slip mechanics, progressive L0-L3 Trust Ladder, and uv-first client bundles for Claude, Antigravity, Codex, Gemini, and air-gapped on-premises robots.",
+  "version": "0.5.0",
+  "description": "Bounded Physical AI, ROS 2 Pre-Flight Gate & ISO 10218:2025 / EU 2023/1230 Compliance MCP App (19 MCP tools, 7 operational Playbooks, 4 Form Elicitations, 5 live Resources, PreToolUse Hooks): ROS 2 MoveIt 2/UR/FR5/xArm launch bundle generator, opt-in Cloudflare D1 Fleet Vault status (zero phone-home when unset), universal 6-client Agent Connect (Claude, Antigravity, Codex, Gemini, Apple MLX, Gemma 4), 1-click offline Compliance Dossier ZIP generator, live Wedge A-Upmarket Workbench side pane, 6-family Hand HAL, Rust graft-core + MuJoCo 4.0.1 physics, Semantic-to-Deterministic Ratchet, and fail-closed L0-L3 Trust Ladder.",
   "logo": "assets/logo.svg",
   "author": {
     "name": "Craig Merry",
@@ -11,10 +11,10 @@
   "homepage": "https://graftrobotics.ai",
   "repository": "https://github.com/craigm26/antigravity-plugins",
   "suggestedPrompts": [
+    "Run /ros2-compliance-audit to generate a ROS 2 pre-flight bundle, verify compliance-pack ZIP, and check Fleet Vault status",
+    "Call graft_connect_agent to connect Claude Code, Antigravity, Codex, Gemini, Apple MLX, or Gemma 4 to my UR5e cell in L0 OBSERVE",
+    "Open the Graft Robotics Workbench side pane, inspect live cell status, and download graft-compliance-pack.zip",
     "Run /remote-shop-onboarding to build a zero-FDE CNC or shop-floor onboarding kit and 48h L0 shadow trial",
-    "Open the Graft Robotics Workbench side pane and inspect our robot cell",
-    "Check whether Asimov-1 can safely lift the cardboard crate without crushing it",
-    "Generate an on-premises air-gapped bundle for a Raspberry Pi 5 + UR5e CNC cell",
-    "Graduate Asimov-1 from Day-1 L1 small-object picks to L2 supervised tasks"
+    "Graduate my robot safely from Day-1 L1 small-object picks to L2 supervised tasks with operator elicitation"
   ]
 }

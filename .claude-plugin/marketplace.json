@@ -12,9 +12,9 @@
     {
       "name": "graft-robotics",
       "displayName": "Graft Robotics",
-      "version": "0.4.1",
+      "version": "0.5.0",
       "category": "Robotics & Physical AI",
-      "description": "Full Anthropic MCP & Claude Code robotics plugin (15 MCP tools): interactive Graft Workbench MCP App, 4 interactive MCP Form Elicitations (ctx.elicit), 6 operational Playbooks (MCP Prompts + slash commands), 5 live MCP Resources, PreToolUse safety guardrail hooks, 6-family Hand HAL, Rust graft-core + MuJoCo 4.0.1 LAN LiDAR mesh collision physics, Semantic-to-Deterministic Ratchet, material crush/slip mechanics, progressive L0-L3 Trust Ladder, RoboCurve SET-Sim rehearsal, and uv-first client LLM bundles.",
+      "description": "Universal Graft Robotics v0.5.0 MCP App & Workbench (19 MCP tools, 7 operational Playbooks, 4 Form Elicitations, 5 live Resources, PreToolUse Hooks): ROS 2 Pre-Flight Launch Bundle generator, opt-in Cloudflare D1 Hosted Fleet Vault status (zero phone-home when unset), 6-client Agent Connect (Claude, Antigravity, Codex, Gemini, Apple MLX, Gemma 4), 1-click ISO 10218:2025 & EU 2023/1230 Compliance Dossier ZIP (0 private keys), live Wedge A-Upmarket Workbench, 6-family Hand HAL, Rust graft-core + MuJoCo 4.0.1 physics, Semantic-to-Deterministic Ratchet, and fail-closed L0-L3 Trust Ladder.",
       "source": "./plugins/graft-robotics",
       "logo": "plugins/graft-robotics/assets/logo.svg",
       "homepage": "https://graftrobotics.ai",
@@ -35,14 +35,18 @@
         "graft_discover_devices",
         "graft_ingest_ambient_signal",
         "graft_generate_onboarding_kit",
-        "graft_run_set_benchmark"
+        "graft_run_set_benchmark",
+        "graft_generate_compliance_pack",
+        "graft_ros2_generate_bundle",
+        "graft_vault_status",
+        "graft_connect_agent"
       ],
       "suggestedPrompts": [
+        "Run /ros2-compliance-audit to generate a ROS 2 pre-flight bundle, verify compliance-pack ZIP, and check Fleet Vault status",
+        "Call graft_connect_agent to connect Claude Code, Antigravity, Codex, Gemini, Apple MLX, or Gemma 4 to my UR5e cell in L0 OBSERVE",
+        "Open the Graft Robotics Workbench side pane and download graft-compliance-pack.zip",
         "Run /remote-shop-onboarding to generate a zero-FDE CNC or shop-floor onboarding kit and 48h L0 shadow trial",
-        "Run /shift-start-preflight to inspect sensors, bounds, and world model freshness",
-        "Open the Graft Robotics Workbench side pane and inspect our robot cell",
-        "Run /semantic-hazard-ratchet to crystallize an unlabeled chemical hazard into a permanent deterministic rule",
-        "Generate a uv-first on-premises air-gapped bundle for a Raspberry Pi 5 + UR5e CNC cell"
+        "Run /semantic-hazard-ratchet to crystallize an unlabeled chemical hazard into a permanent deterministic rule"
       ]
     },
     {
