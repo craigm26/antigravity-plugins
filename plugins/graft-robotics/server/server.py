@@ -2,7 +2,7 @@
 """Graft Robotics — Universal MCP Plugin Server v0.5.0 (Claude Code, Antigravity, Codex CLI & Gemini CLI).
 
 Utilizes the FULL Anthropic MCP & Multi-Client Plugin capability surface:
-  1. MCP App (`ui://graft-robotics/workbench.html` · `text/html;profile=mcp-app`) — live Wedge A-Upmarket
+  1. MCP App (`ui://graft-robotics/workbench.html` · `text/html;profile=mcp-app`) — live Graft Robotics
      Workbench with 2s polling, 1-click Compliance Pack ZIP download, Vault Drift Status badge, and
      sandboxed iframe `postMessage` JSON-RPC fallback
   2. MCP Elicitations (`ctx.elicit(...)` Form Mode with Pydantic schemas for fail-closed human-in-the-loop
@@ -151,7 +151,7 @@ class SkillPackOnboardingElicitation(BaseModel):
 class RemoteOnboardingElicitation(BaseModel):
     user_type: str = Field(
         default="cnc",
-        description="User track: cnc | lab | oem | benchtop | ehs",
+        description="User track: cnc | lab | oem | benchtop | ehs | ros2",
     )
     setup_depth: str = Field(
         default="quick",
@@ -260,8 +260,9 @@ def _build_bundle_recommendation(llm_provider: str, budget_tier: str, hardware_t
         extra_pkgs.append("mujoco")
 
     with_flags = " ".join(f"--with {p}" for p in extra_pkgs)
-    uv_cmd = f"uv tool install robot-md-gateway {with_flags}"
-    pip_cmd = "pip install robot-md-gateway " + " ".join(extra_pkgs)
+    uv_cmd = f"uv tool install --upgrade robot-md-gateway --with-executables-from robot-md {with_flags}"
+    robot_gate_uv_cmd = 'uv tool install --upgrade "robot-gate[server]"'
+    pip_cmd = 'pip install --upgrade "robot-gate[server]" robot-md-gateway ' + " ".join(extra_pkgs)
 
     if llm in ("apple_mlx", "mlx", "apple", "mac", "mac_mini", "apple-mlx"):
         profile = "apple-mlx-shop-server"
@@ -376,6 +377,7 @@ def _build_bundle_recommendation(llm_provider: str, budget_tier: str, hardware_t
         "software_license": "Apache-2.0 (free local runtime & public PyPI packages)",
         "install_commands": [
             uv_cmd,
+            robot_gate_uv_cmd,
             f"# pip fallback: {pip_cmd}",
             "robot-md-gateway init --yes",
             "robot-md-gateway list-actuators",
@@ -480,6 +482,24 @@ _ONBOARD_PERSONAS: dict[str, dict[str, Any]] = {
         "coolant_wet_default": False,
         "datums": ["audit_origin", "egress_boundary", "estop_station"],
         "plain_english_focus": "Strict ISO 13850 & ISO 13849-1 hardware/software boundary clarity, fail-closed Envelope 0.2 verification, and offline-verifiable RFC 8785 SHA-256 receipts.",
+    },
+    "ros2": {
+        "label": "Commercial ROS 2 / VLA Cell",
+        "default_robot": "ros2-vla-ur5e",
+        "hardware_target": "ur5e_cnc",
+        "budget_tier": "starter",
+        "hal_driver": "castor_hal.drivers.ur_rtde",
+        "dof": 6,
+        "workspace_box_m": {"x": [-0.70, 0.75], "y": [-0.60, 0.60], "z": [0.05, 0.92]},
+        "exclusions": [
+            {"name": "workcell_spindle_fixture", "min": [0.35, -0.25, 0.55], "max": [0.78, 0.25, 1.05]},
+            {"name": "operator_front_aisle", "min": [-0.75, -0.65, 0.00], "max": [-0.48, 0.65, 1.25]},
+        ],
+        "max_tcp_velocity_mps": 0.40,
+        "max_contact_force_n": 55.0,
+        "coolant_wet_default": False,
+        "datums": ["ros2_base_link_origin", "vla_pick_datum", "vla_place_datum"],
+        "plain_english_focus": "ROS 2 Humble/Iron/Jazzy + MoveIt 2 / VLA cell (UR5e, FR5, xArm6) with drop-in pre-flight boundary launch bundle and ISO 10218:2025 / EU 2023/1230 compliance pack.",
     },
 }
 
@@ -754,13 +774,13 @@ def _build_onboarding_kit(
     install_commands = [
         "# 1. Install published Apache-2.0 RRF core packages (PyPI):",
         bundle["install_commands"][0],
-        "# 2. Install Graft Robotics local on-robot gate & Cell Console from your checkout:",
-        "uv pip install -e ./robot-gate[server]",
+        "# 2. Install Graft Robotics CLI & Cell Console from PyPI (or try `uvx robot-gate demo --ros2`):",
+        'uv tool install --upgrade "robot-gate[server]"',
         "# 3. Scaffold your signed ROBOT.md v1.1 cell in zero-motion L0 OBSERVE:",
         cli_onboard_cmd,
         "# 4. Start local Graft Cell Console in zero-motion L0 OBSERVE on :8785:",
         serve_cmd,
-        *bundle["install_commands"][1:],
+        *bundle["install_commands"][2:],
     ]
 
     llm_coach_instructions = (
@@ -1000,7 +1020,7 @@ def prompt_remote_shop_onboarding(
     return (
         f"Act as the Graft Robotics Remote Shop Onboarding Specialist for `{organization}` "
         f"(track=`{user_type}`, depth=`{setup_depth}` — zero FDE and zero machining specialist required):\n"
-        f"1. Adapt your language to `{user_type}` (`cnc`, `lab`, `oem`, `benchtop`, or `ehs`) and `{setup_depth}` (`quick` vs `advanced`). Keep questions plain-English and one step at a time.\n"
+        f"1. Adapt your language to `{user_type}` (`cnc`, `lab`, `oem`, `benchtop`, `ehs`, or `ros2`) and `{setup_depth}` (`quick` vs `advanced`). Keep questions plain-English and one step at a time.\n"
         f"2. Ask the operator for 1–2 wide phone photos of their machine/workspace (or a plain-English layout if camera-restricted). "
         f"Conservatively flag walkways, door/spindle sweeps, electrical cabinets, overhead fixtures, and any unlabeled containers for keep-out zones.\n"
         f"3. Read `graft://safety/boundary-policy` and confirm a hardwired **ISO 13850** red mushroom E-stop and intact **ISO 13849-1** door interlocks/safety relays. "
@@ -1042,7 +1062,7 @@ def prompt_ros2_compliance_audit(
         f"1. Read `graft://safety/boundary-policy` and confirm hardwired ISO 13850 E-stops, ISO 13849-1 safety relays/interlocks, and ITAR/EAR air-gap posture.\n"
         f"2. Call `graft_ros2_generate_bundle(workspace_dir='{workspace_dir}', output_dir='{workspace_dir}/ros2_bundle', stack='{stack}', embodiment='{embodiment}', frame_id='base_link')` (or run `robot-gate ros2-bridge`).\n"
         f"3. Run the 4-stage deterministic pre-flight gate (`robot-gate check --dir '{workspace_dir}' --sim-only`) to emit a signed `gate_receipt.json` matching the live workspace fingerprint.\n"
-        f"4. Call `graft_generate_compliance_pack(workspace_dir='{workspace_dir}')` (or `robot-gate compliance-pack --dir '{workspace_dir}' --verify`) and confirm `valid=True` with 0 private keys / 0 `.pem` files.\n"
+        f"4. Call `graft_generate_compliance_pack(workspace_dir='{workspace_dir}')` (or `robot-gate compliance-pack --dir '{workspace_dir}' --out '{workspace_dir}/graft-compliance-pack.zip' && robot-gate compliance-pack --verify '{workspace_dir}/graft-compliance-pack.zip'`) and confirm `valid=True` with 0 private keys / 0 `.pem` files.\n"
         f"5. Call `graft_vault_status(robot_id='{embodiment}', limit=20)` — verify zero phone-home when `GRAFT_VAULT_API_KEY` is unset, or review drift alerts after an opt-in `robot-gate vault push` (non-ITAR/EAR cells only).\n"
         f"6. Wire `robot-gate/ci/cloudflare-build.sh` into Cloudflare Pages/Workers CI/CD (Zero GitHub Actions)."
     )

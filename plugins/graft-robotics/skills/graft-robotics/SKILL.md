@@ -1,6 +1,6 @@
 ---
 name: graft-robotics
-description: Pair Claude Code, Antigravity, Codex CLI, Gemini CLI, Apple Silicon MLX, or local Gemma 4 safely with physical robots using Graft Robotics v0.5.0 (graftrobotics.ai). Supports 19 MCP tools (ROS 2 launch bundle generator graft_ros2_generate_bundle, opt-in Cloudflare D1 Fleet Vault status graft_vault_status, universal 6-client Agent Connect graft_connect_agent, 1-click ISO 10218:2025 & EU 2023/1230 Compliance Dossier ZIP graft_generate_compliance_pack, self-serve Remote Shop Onboarding), live Wedge A-Upmarket MCP App Workbench, 4 fail-closed MCP Form Elicitations, 7 operational Playbooks (incl. /ros2-compliance-audit), 5 live MCP Resources, Rust graft-core continuous swept-path & LAN LiDAR meshing, and 6-family Hand HAL mechanics.
+description: Deterministic software pre-flight safety boundary, ROS 2 interceptor, and ISO 10218:2025 / EU 2023/1230 compliance suite for Graft Robotics v0.5.0 (graftrobotics.ai). Includes 19 MCP tools, 7 operational playbooks (incl. /ros2-compliance-audit), 4 fail-closed form elicitations, 5 live resources, the Graft Workbench MCP App, 6-family Hand HAL, and Rust graft-core spatial verification.
 ---
 
 # Graft Robotics Plugin (`v0.5.0`)
@@ -18,11 +18,11 @@ Graft puts a deterministic, default-deny software pre-flight boundary (`graft-co
 
 ## Self-Serve Remote Shop Onboarding & ROS 2 Compliance Audit
 - **Slash Command & MCP Prompt (`/ros2-compliance-audit` · `ros2-compliance-audit`):** Guides teams end-to-end through `ros2-bridge` -> `check` -> `compliance-pack --verify` -> opt-in `vault push` -> Cloudflare-only `robot-gate/ci/cloudflare-build.sh` (**Zero GitHub Actions**).
-- **Slash Command & MCP Prompt (`/remote-shop-onboarding` · `remote-shop-onboarding`):** Plain-English Remote Shop Onboarding Specialist across 5 tracks (`cnc`, `lab`, `oem`, `benchtop`, `ehs`) with 6-family Hand HAL selection and a 48-hour zero-motion `L0 OBSERVE` shadow trial.
+- **Slash Command & MCP Prompt (`/remote-shop-onboarding` · `remote-shop-onboarding`):** Plain-English Remote Shop Onboarding Specialist across 6 tracks (`cnc`, `lab`, `oem`, `benchtop`, `ehs`, `ros2`) with 6-family Hand HAL selection and a 48-hour zero-motion `L0 OBSERVE` shadow trial.
 - **Companion Surfaces:** [https://graftrobotics.ai/connect/](https://graftrobotics.ai/connect/), [https://graftrobotics.ai/compliance/](https://graftrobotics.ai/compliance/), [https://graftrobotics.ai/vault/](https://graftrobotics.ai/vault/), and [https://graftrobotics.ai/onboard/](https://graftrobotics.ai/onboard/).
 
 ## Capabilities Included (`v0.5.0`)
-- **Live Wedge A-Upmarket MCP App (`ui://graft-robotics/workbench.html`):** Interactive Workbench side-pane / inline UI (`open_graft_workbench`) connecting to `http://127.0.0.1:8785` with 2-second live polling, 1-click **Download Compliance Pack ZIP** (`GET /v1/compliance-pack`), **Vault Drift Status** badge (`GET /v1/vault/status`), sandboxed iframe `postMessage` JSON-RPC bridge fallback, and explicit offline-demo indicator when the local server is stopped.
+- **Live Graft Robotics MCP App (`ui://graft-robotics/workbench.html`):** Interactive Workbench side-pane / inline UI (`open_graft_workbench`) connecting to `http://127.0.0.1:8785` with 2-second live polling, 1-click **Download Compliance Pack ZIP** (`GET /v1/compliance-pack`), **Vault Drift Status** badge (`GET /v1/vault/status`), sandboxed iframe `postMessage` JSON-RPC bridge fallback, and explicit offline-demo indicator when the local server is stopped.
 - **4 Fail-Closed MCP Form Elicitations (`ctx.elicit`):** Native operator confirmation forms before:
   - Promoting a robot on the Trust Ladder (`graft_trust_ladder(action="promote")`) — **fails closed** if the MCP client does not support elicitation
   - Resolving an `L1` Semantic Ratchet escalation on unlabeled objects (`graft_check_semantic_action`)

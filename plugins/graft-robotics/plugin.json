@@ -2,7 +2,7 @@
   "name": "graft-robotics",
   "displayName": "Graft Robotics",
   "version": "0.5.0",
-  "description": "Bounded Physical AI, ROS 2 Pre-Flight Gate & ISO 10218:2025 / EU 2023/1230 Compliance MCP App (19 MCP tools, 7 operational Playbooks, 4 Form Elicitations, 5 live Resources, PreToolUse Hooks): ROS 2 MoveIt 2/UR/FR5/xArm launch bundle generator, opt-in Cloudflare D1 Fleet Vault status (zero phone-home when unset), universal 6-client Agent Connect (Claude, Antigravity, Codex, Gemini, Apple MLX, Gemma 4), 1-click offline Compliance Dossier ZIP generator, live Wedge A-Upmarket Workbench side pane, 6-family Hand HAL, Rust graft-core + MuJoCo 4.0.1 physics, Semantic-to-Deterministic Ratchet, and fail-closed L0-L3 Trust Ladder.",
+  "description": "Deterministic software pre-flight safety boundary, ROS 2 interceptor, and ISO 10218:2025 / EU 2023/1230 compliance MCP App for physical robots. Includes 19 MCP tools, 7 playbooks, 4 fail-closed form elicitations, 5 live resources, PreToolUse hooks, 6-client Agent Connect, opt-in Fleet Vault status, 6-family Hand HAL, and Rust graft-core spatial verification.",
   "logo": "assets/logo.svg",
   "author": {
     "name": "Craig Merry",

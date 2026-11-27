@@ -101,7 +101,7 @@
 
   <div class="card">
     <div class="card-hdr">
-      <h4>Wedge A-Upmarket · Compliance Pack &amp; Fleet Vault</h4>
+      <h4>Compliance Pack &amp; Fleet Vault</h4>
       <span class="pill cobalt" id="pollHeartbeat">POLL: 2s</span>
     </div>
     <div class="row"><span>ISO 10218:2025 &amp; EU (2023/1230) Dossier</span><span id="complianceStatusRow">graft-compliance-pack.zip (0 private keys)</span></div>
@@ -444,7 +444,7 @@ async function downloadCompliancePack() {
     } catch (_bridgeErr) {
       // Offline fallback guidance
     }
-    note.textContent = 'Local server stopped — run `robot-gate serve --dir . --port 8785` or `robot-gate compliance-pack --dir . --verify`.';
+    note.textContent = 'Local server stopped — run `robot-gate serve --dir . --port 8785` or `robot-gate compliance-pack --dir . --out ./graft-compliance-pack.zip && robot-gate compliance-pack --verify ./graft-compliance-pack.zip`.';
   } finally {
     btn.disabled = false;
   }

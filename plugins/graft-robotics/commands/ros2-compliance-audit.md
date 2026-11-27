@@ -4,7 +4,7 @@ description: End-to-end ROS 2 Pre-Flight Gate & ISO 10218:2025 / EU (2023/1230) 
 
 # ROS 2 Pre-Flight & Compliance Audit Playbook (`/ros2-compliance-audit`)
 
-Guide the robotics team through a complete, offline-verifiable **Wedge A-Upmarket** pre-flight and compliance audit for their ROS 2 / MoveIt 2 / industrial robot cell — **Zero GitHub Actions (Cloudflare-only CI/CD)**.
+Guide the robotics team through a complete, offline-verifiable **ROS 2 pre-flight & compliance audit** for their ROS 2 / MoveIt 2 / industrial robot cell — **Zero GitHub Actions (Cloudflare-only CI/CD)**.
 
 > **Mandatory ISO 13850 & ISO 13849-1 Hardware Safety Boundary:** `robot-gate`, `graft-core`, `graft-watchdog`, `bounded-embodiment`, and `robot-md-gateway` are strictly deterministic **software** pre-flight gates and RFC 8785 / SHA-256 audit layers claiming **ZERO** Performance Level (PL) or Safety Integrity Level (SIL) credit. Certified hardwired ISO 13850 red mushroom E-stops, ISO 13849-1:2023 safety relays/door interlocks, and an application-specific ANSI/A3 R15.06-2025 & ISO 12100 risk assessment remain mandatory.
 >
@@ -14,7 +14,7 @@ Guide the robotics team through a complete, offline-verifiable **Wedge A-Upmarke
 
 ## Step 1 — Generate Drop-In ROS 2 Pre-Flight Boundary Bundle (`ros2-bridge`)
 
-1. Call `graft_ros2_generate_bundle(workspace_dir=".", output_dir="./ros2_bundle", stack="moveit2", embodiment="ur5e", frame_id="base_link")` (or run CLI `robot-gate ros2-bridge --dir . --out ./ros2_bundle --stack moveit2 --embodiment ur5e --frame-id base_link`).
+1. Call `graft_ros2_generate_bundle(workspace_dir=".", output_dir="./ros2_bundle", stack="moveit2", embodiment="ur5e", frame_id="base_link")` (or run CLI `robot-gate ros2-bridge --dir . --generate-bundle ./ros2_bundle --stack moveit2 --embodiment ur5e --frame-id base_link`).
 2. Inspect the generated `graft_ros2_params.yaml`, `graft_ros2_gate.launch.py`, and `README_ROS2.md`:
    - Confirm `require_hard_latch: true`, `L0_OBSERVE: 0.0` (0% shadow start), workspace bounds, and keep-out exclusion boxes mirror signed `ROBOT.md`.
    - Confirm topic remappings for MoveIt 2, UR RTDE, Fairino FR5, or xArm6.
@@ -27,7 +27,7 @@ Guide the robotics team through a complete, offline-verifiable **Wedge A-Upmarke
 
 ## Step 3 — Generate & Offline-Verify Compliance Dossier ZIP (`compliance-pack --verify`)
 
-1. Call `graft_generate_compliance_pack(workspace_dir=".", zip_filename="graft-compliance-pack.zip")` (or run CLI `robot-gate compliance-pack --dir . --verify`, or click **Download Compliance Pack ZIP** in the Graft Workbench hitting `GET http://127.0.0.1:8785/v1/compliance-pack`).
+1. Call `graft_generate_compliance_pack(workspace_dir=".", zip_filename="graft-compliance-pack.zip")` (or run CLI `robot-gate compliance-pack --dir . --out ./graft-compliance-pack.zip && robot-gate compliance-pack --verify ./graft-compliance-pack.zip`, or click **Download Compliance Pack ZIP** in the Graft Workbench hitting `GET http://127.0.0.1:8785/v1/compliance-pack`).
 2. Confirm:
    - Offline verification passes (`valid: true`, canonical RFC 8785 `manifest_sha256` matches).
    - **0 private keys / 0 `.pem` files** included in `graft-compliance-pack.zip`.

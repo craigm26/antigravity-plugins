@@ -14,7 +14,7 @@
       "displayName": "Graft Robotics",
       "version": "0.5.0",
       "category": "Robotics & Physical AI",
-      "description": "Universal Graft Robotics v0.5.0 MCP App & Workbench (19 MCP tools, 7 operational Playbooks, 4 Form Elicitations, 5 live Resources, PreToolUse Hooks): ROS 2 Pre-Flight Launch Bundle generator, opt-in Cloudflare D1 Hosted Fleet Vault status (zero phone-home when unset), 6-client Agent Connect (Claude, Antigravity, Codex, Gemini, Apple MLX, Gemma 4), 1-click ISO 10218:2025 & EU 2023/1230 Compliance Dossier ZIP (0 private keys), live Wedge A-Upmarket Workbench, 6-family Hand HAL, Rust graft-core + MuJoCo 4.0.1 physics, Semantic-to-Deterministic Ratchet, and fail-closed L0-L3 Trust Ladder.",
+      "description": "Graft Robotics v0.5.0 deterministic ROS 2 pre-flight boundary, ISO 10218:2025 / EU 2023/1230 compliance suite, and interactive Workbench MCP App. Includes 19 MCP tools, 7 playbooks, 4 fail-closed form elicitations, 5 live resources, PreToolUse hooks, 6-client Agent Connect, opt-in Fleet Vault status, 6-family Hand HAL, and Rust graft-core + MuJoCo 4.0.1 physics.",
       "source": "./plugins/graft-robotics",
       "logo": "plugins/graft-robotics/assets/logo.svg",
       "homepage": "https://graftrobotics.ai",
