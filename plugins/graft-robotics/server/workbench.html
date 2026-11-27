@@ -8,32 +8,80 @@
   :root {
     --paper:#F5F2EB; --card:#FFFDF9; --sand:#EAE4D7; --ink:#181715; --soft:#57524A;
     --line:#DCD5C7; --moss:#1F6F4A; --moss-bg:#E3F2EA; --verm:#E85D2A; --red:#C2410C; --red-bg:#FDEBE4;
-    --amber:#B45309; --amber-bg:#FEF3DB; --cobalt:#1D4ED8; --cobalt-bg:#E8F0FE;
+    --amber:#B45309; --amber-bg:#FEF3DB; --amber-ink:#78350F; --cobalt:#1D4ED8; --cobalt-bg:#E8F0FE;
+    --svg-bg:#F5F2EB; --svg-grid:#E3DCCB;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:#141311; --card:#1D1B18; --sand:#26231F; --ink:#F3EFE6; --soft:#B5AEA0;
+      --line:#36322C; --moss:#34D399; --moss-bg:rgba(52,211,153,.15); --verm:#FF7442; --red:#FB7185; --red-bg:rgba(232,93,42,.18);
+      --amber:#FBBF24; --amber-bg:rgba(251,191,36,.15); --amber-ink:#FDE68A; --cobalt:#60A5FA; --cobalt-bg:rgba(96,165,250,.16);
+      --svg-bg:#141311; --svg-grid:#292621;
+    }
+  }
+  body.daylight {
+    --paper:#F5F2EB; --card:#FFFDF9; --sand:#EAE4D7; --ink:#181715; --soft:#57524A;
+    --line:#DCD5C7; --moss:#1F6F4A; --moss-bg:#E3F2EA; --verm:#E85D2A; --red:#C2410C; --red-bg:#FDEBE4;
+    --amber:#B45309; --amber-bg:#FEF3DB; --amber-ink:#78350F; --cobalt:#1D4ED8; --cobalt-bg:#E8F0FE;
+    --svg-bg:#F5F2EB; --svg-grid:#E3DCCB;
+  }
+  body.night {
+    --paper:#141311; --card:#1D1B18; --sand:#26231F; --ink:#F3EFE6; --soft:#B5AEA0;
+    --line:#36322C; --moss:#34D399; --moss-bg:rgba(52,211,153,.15); --verm:#FF7442; --red:#FB7185; --red-bg:rgba(232,93,42,.18);
+    --amber:#FBBF24; --amber-bg:rgba(251,191,36,.15); --amber-ink:#FDE68A; --cobalt:#60A5FA; --cobalt-bg:rgba(96,165,250,.16);
+    --svg-bg:#141311; --svg-grid:#292621;
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--paper); color:var(--ink); font-family:system-ui,-apple-system,sans-serif; padding:12px; font-size:13px; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:system-ui,-apple-system,sans-serif; padding:12px; font-size:13px; transition:background .15s,color .15s; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; background:var(--sand); color:var(--ink); padding:1px 5px; border-radius:4px; }
+
   .hdr { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
   .brand { display:flex; align-items:center; gap:8px; font-weight:700; font-size:15px; }
   .brand span { font-weight:400; color:var(--soft); }
   .pills { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
-  .pill { font-family:ui-monospace,monospace; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--moss-bg); color:var(--moss); border:1px solid var(--moss); }
+  .pill { font-family:ui-monospace,monospace; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--moss-bg); color:var(--moss); border:1px solid var(--moss); white-space:nowrap; }
   .pill.hold { background:var(--red-bg); color:var(--red); border-color:var(--verm); }
   .pill.amber { background:var(--amber-bg); color:var(--amber); border-color:var(--amber); }
   .pill.cobalt { background:var(--cobalt-bg); color:var(--cobalt); border-color:var(--cobalt); }
+  .theme-btn { cursor:pointer; font-family:ui-monospace,monospace; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--card); color:var(--ink); border:1px solid var(--line); }
+
+  .live-banner {
+    display:none; background:var(--moss-bg); border:1.5px solid var(--moss); border-radius:10px;
+    padding:7px 11px; margin-bottom:10px; font-size:11.5px; color:var(--ink);
+    align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;
+  }
+  .live-banner.show { display:flex; }
+  .live-banner strong { color:var(--moss); }
 
   .offline-banner {
     display:none; background:var(--amber-bg); border:1.5px solid var(--amber); border-radius:10px;
-    padding:8px 11px; margin-bottom:10px; font-size:11.5px; color:#78350F;
+    padding:9px 11px; margin-bottom:10px; font-size:11.5px; color:var(--amber-ink);
   }
   .offline-banner.show { display:block; }
+  .copy-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; align-items:center; }
+
+  .drift-banner {
+    display:none; background:var(--amber-bg); border:1.5px solid var(--amber); border-radius:10px;
+    padding:9px 11px; margin-bottom:10px; font-size:11.5px; color:var(--amber-ink);
+  }
+  .drift-banner.show { display:block; }
+  .drift-top { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:4px; }
+  .drift-diff { font-family:ui-monospace,monospace; font-size:10.5px; background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:4px 7px; margin-top:5px; word-break:break-all; }
 
   .hold-strip {
     display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;
     background:var(--red-bg); border:1.5px solid var(--verm); border-radius:11px;
     padding:9px 11px; margin-bottom:10px;
   }
+  .hold-strip.demo-guard { border-style:dashed; }
   .hold-strip strong { color:var(--red); font-size:12px; }
   .hold-strip .sub { font-size:10.5px; color:var(--soft); display:block; margin-top:2px; }
+  .demo-chip {
+    display:inline-block; font-family:ui-monospace,monospace; font-size:10px; font-weight:700;
+    padding:1px 7px; border-radius:999px; background:var(--amber-bg); color:var(--amber);
+    border:1px solid var(--amber); margin-bottom:4px;
+  }
+
   .btn {
     cursor:pointer; border-radius:999px; padding:5px 11px; font-size:11px; font-weight:700;
     border:1.5px solid var(--line); background:var(--card); color:var(--ink);
@@ -41,12 +89,15 @@
   .btn:disabled { opacity:0.6; cursor:not-allowed; }
   .btn.moss { background:var(--moss); border-color:var(--moss); color:#fff; }
   .btn.verm { background:var(--verm); border-color:var(--verm); color:#fff; }
+  .btn.amber { background:var(--amber); border-color:var(--amber); color:#fff; }
   .btn.cobalt { background:var(--cobalt); border-color:var(--cobalt); color:#fff; }
+  .btn.sm { padding:4px 9px; font-size:10.5px; }
 
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:11px; margin-bottom:10px; }
   .card-hdr { display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:6px; flex-wrap:wrap; }
   h4 { margin:0; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--soft); }
   .row { display:flex; justify-content:space-between; align-items:center; padding:5px 8px; border-radius:7px; background:var(--paper); margin-bottom:4px; font-family:ui-monospace,monospace; font-size:11px; gap:6px; }
+  .row span:last-child { text-align:right; }
   .ladder { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; margin-top:6px; }
   .lvl { padding:6px; border-radius:8px; background:var(--paper); border:1px solid var(--line); font-size:11px; text-align:center; }
   .lvl.on { background:var(--moss-bg); border-color:var(--moss); color:var(--moss); font-weight:700; }
@@ -60,6 +111,27 @@
   .inbox-reason { font-size:11.5px; margin-bottom:5px; }
   .tag { display:inline-block; padding:1px 6px; border-radius:999px; font-family:ui-monospace,monospace; font-size:10px; font-weight:700; background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber); margin-right:4px; }
 
+  /* 2D Workspace Mini-Map */
+  .map-wrap { background:var(--svg-bg); border:1px solid var(--line); border-radius:9px; padding:4px; overflow:hidden; }
+  .map-legend { display:flex; gap:10px; flex-wrap:wrap; font-family:ui-monospace,monospace; font-size:10px; color:var(--soft); margin-top:5px; align-items:center; }
+  .leg-dot { display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:4px; vertical-align:middle; }
+
+  /* Live AI Tool-Call -> Gate Verdict Timeline */
+  .timeline { display:flex; flex-direction:column; gap:4px; }
+  .tl-row {
+    display:grid; grid-template-columns:auto auto 1fr auto; align-items:center; gap:6px;
+    padding:5px 7px; border-radius:7px; background:var(--paper); border:1px solid var(--line);
+    font-family:ui-monospace,monospace; font-size:10.5px;
+  }
+  .tl-time { color:var(--soft); white-space:nowrap; }
+  .tl-badge { padding:1px 6px; border-radius:999px; font-size:9.5px; font-weight:700; white-space:nowrap; }
+  .tl-badge.allow { background:var(--moss-bg); color:var(--moss); border:1px solid var(--moss); }
+  .tl-badge.deny { background:var(--red-bg); color:var(--red); border:1px solid var(--verm); }
+  .tl-detail { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink); }
+  .tl-detail b { color:var(--ink); }
+  .tl-detail em { font-style:normal; color:var(--soft); }
+  .tl-sha { color:var(--soft); font-size:10px; white-space:nowrap; }
+
   .bundle-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
   .b-chip { padding:7px 9px; border-radius:8px; background:var(--paper); border:1px solid var(--line); font-size:11.5px; min-width:0; }
   .b-chip b { display:block; color:var(--ink); }
@@ -70,7 +142,7 @@
 <body>
   <div class="hdr">
     <div class="brand">
-      <svg width="24" height="24" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+      <svg width="24" height="24" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <rect width="128" height="128" rx="28" fill="#181715"/>
         <path d="M 96.5 41.5 A 40 40 0 1 0 104 64 H 70" fill="none" stroke="#FFFDF9" stroke-width="15"/>
         <path d="M 64 24 A 40 40 0 0 1 92.3 35.7" fill="none" stroke="#3FB27F" stroke-width="15"/>
@@ -83,20 +155,69 @@
       <span class="pill" id="eeFamilyPill">HAL: parallel_2f</span>
       <span class="pill amber" id="vaultDriftBadge">VAULT: CHECKING...</span>
       <span class="pill amber" id="modePill">CONNECTING :8785...</span>
+      <button class="theme-btn" id="themeToggle" type="button" onclick="toggleTheme()" title="Toggle Warm Workshop Daylight / Night-Shift">&#9790; Theme</button>
     </div>
+  </div>
+
+  <div class="live-banner" id="liveCellBanner">
+    <div><strong>LIVE CELL (:8785):</strong> <span id="liveBannerText">Connected to local Graft Cell Console</span></div>
+    <span class="pill" id="liveLatchPill">LATCH: VALID</span>
   </div>
 
   <div class="offline-banner" id="offlineBanner">
-    <strong>OFFLINE DEMO MODE (v0.5.0):</strong> Local Cell Console (<code>http://127.0.0.1:8785</code>) is not reachable.
-    Start <code>robot-gate serve --dir . --port 8785</code> for live 2-second telemetry, or use MCP Apps <code>postMessage</code> bridge tools.
+    <div><strong>OFFLINE DEMO — NO CELL CONNECTED (:8785) · v0.5.0:</strong> Local Graft Cell Console (<code>http://127.0.0.1:8785</code>) is not reachable. Start a local cell for live 2-second telemetry, or use MCP Apps <code>postMessage</code> bridge tools:</div>
+    <div class="copy-row">
+      <button class="btn sm moss" type="button" onclick="copyStartCmd('uvx robot-gate demo', this)">Copy: uvx robot-gate demo</button>
+      <button class="btn sm" type="button" onclick="copyStartCmd('robot-gate serve --dir . --port 8785', this)">Copy: robot-gate serve --dir . --port 8785</button>
+      <span class="note" id="copyStatusNote" style="margin:0"></span>
+    </div>
   </div>
 
-  <div class="hold-strip">
-    <div>
-      <strong id="holdLabel">Software HOLD Latch: DISENGAGED (SIM SAFE)</strong>
-      <span class="sub">Deterministic software boundary latch paired with hardwired ISO 13850 shop E-stops — NEVER a hardware E-stop.</span>
+  <div class="drift-banner" id="driftAlertBanner">
+    <div class="drift-top">
+      <strong>LATCH INVALIDATED (ROBOT.md / Config Changed)</strong>
+      <button class="btn sm amber" id="runGateCheckBtn" type="button" onclick="runGateCheck()">Run 60s Gate Check</button>
     </div>
-    <button class="btn verm" id="holdBtn" onclick="toggleWorkbenchHold()">Engage HOLD</button>
+    <div id="driftAlertReason">Workspace fingerprint does not match the signed gate_receipt.json.</div>
+    <div class="drift-diff" id="driftFingerprintDiff">fingerprint_diff: pending...</div>
+    <div class="note" id="gateCheckNote" style="margin-top:5px"></div>
+  </div>
+
+  <div class="hold-strip" id="holdStrip">
+    <div>
+      <span class="demo-chip" id="holdDemoChip" style="display:none">[DEMO SIMULATION — NO CELL CONNECTED]</span><br id="holdDemoBr" style="display:none"/>
+      <strong id="holdLabel">Software HOLD Latch: DISENGAGED (SIM SAFE)</strong>
+      <span class="sub">Deterministic software boundary latch (0 PL/SIL credit) paired with hardwired ISO 13850 shop E-stops — NEVER a hardware E-stop.</span>
+      <span class="sub" id="holdFeedback" style="font-family:ui-monospace,monospace;"></span>
+    </div>
+    <button class="btn verm" id="holdBtn" type="button" onclick="toggleWorkbenchHold()">Engage HOLD</button>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <h4>2D Workspace Mini-Map (Top-Down X/Y)</h4>
+      <span class="pill cobalt" id="mapModePill">WORKSPACE</span>
+    </div>
+    <div class="map-wrap">
+      <svg id="workspaceSvg" viewBox="0 0 360 160" width="100%" height="160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Top-down X/Y robot workspace envelope and live LiDAR obstacles"></svg>
+    </div>
+    <div class="map-legend">
+      <span><i class="leg-dot" style="background:var(--moss)"></i>Keep-In Envelope</span>
+      <span><i class="leg-dot" style="background:var(--verm)"></i>ROBOT.md Exclusions</span>
+      <span><i class="leg-dot" style="background:var(--amber)"></i>Live LiDAR Meshes</span>
+      <span id="mapCaption" style="margin-left:auto">Awaiting envelope...</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <h4>Live AI Tool-Call &rarr; Gate Verdict Timeline</h4>
+      <span class="pill cobalt" id="timelineBadge">0 recent</span>
+    </div>
+    <div class="timeline" id="receiptTimeline">
+      <div class="row"><span>Waiting for gate receipts...</span><span>--</span></div>
+    </div>
+    <div class="note" id="timelineNote">Latest 8 RFC 8785 SHA-256 hash-chained verdicts from Claude / Antigravity / Cursor tool calls.</div>
   </div>
 
   <div class="card">
@@ -107,8 +228,8 @@
     <div class="row"><span>ISO 10218:2025 &amp; EU (2023/1230) Dossier</span><span id="complianceStatusRow">graft-compliance-pack.zip (0 private keys)</span></div>
     <div class="row"><span>Cloudflare D1 Hosted Fleet Vault (Opt-In)</span><span id="vaultDetailRow">Zero phone-home when GRAFT_VAULT_API_KEY unset</span></div>
     <div class="action-bar">
-      <button class="btn moss" id="downloadComplianceBtn" onclick="downloadCompliancePack()">Download Compliance Pack ZIP</button>
-      <button class="btn" id="refreshVaultBtn" onclick="refreshVaultStatus()">Refresh Vault Status</button>
+      <button class="btn moss" id="downloadComplianceBtn" type="button" onclick="downloadCompliancePack()">Download Compliance Pack ZIP</button>
+      <button class="btn" id="refreshVaultBtn" type="button" onclick="refreshVaultStatus()">Refresh Vault Status</button>
       <span class="note" id="complianceActionNote" style="margin:0">GET /v1/compliance-pack · verified offline before download</span>
     </div>
   </div>
@@ -144,8 +265,8 @@
     <div id="wmOut">
       <div class="row"><span>End-Effector Family</span><span id="eeSummaryRow">parallel_2f · maintain_grasp on HOLD</span></div>
       <div class="row"><span>Sensors: OAK-D Pro + LAN LiDAR + F/T + PLC</span><span id="sensorSummaryRow">FRESH</span></div>
-      <div class="row"><span>Rust Kernel: graft-core slab + MuJoCo 4.0.1</span><span>1.96 &micro;s · 0.0125 ms cached</span></div>
-      <div class="row"><span>Watchdog Heartbeat (/stop p50)</span><span>0.22 ms · monotonic clock</span></div>
+      <div class="row"><span>Rust Kernel (graft-core)</span><span id="kernelSummaryRow">Ref spec: 1.96 &micro;s slab · 0.0125 ms cached</span></div>
+      <div class="row"><span>Watchdog Stop-Lane (graft-watchdog)</span><span id="watchdogSummaryRow">Ref spec: 0.22 ms /stop p50 · monotonic</span></div>
       <div class="row"><span>RFC 8785 Audit &amp; EV-03 Receipt Chain</span><span id="auditSummaryRow">INTACT</span></div>
     </div>
   </div>
@@ -174,13 +295,14 @@
       <div class="b-chip"><b>Apple Silicon MLX</b><span>Air-Gapped LAN · ITAR Safe ($0/mo)</span></div>
       <div class="b-chip"><b>Google Gemma 4 / Ollama</b><span>Local Air-Gapped Edge ($0/mo)</span></div>
     </div>
-    <div class="note"><strong>Mandatory Safety &amp; ITAR/EAR Boundary:</strong> Deterministic default-deny software pre-flight gate &amp; RFC 8785 SHA-256 audit layer (zero PL/SIL credit) — NEVER a replacement for hardwired ISO 13850 E-stops or ISO 13849-1 safety relays. Keep <code>GRAFT_VAULT_API_KEY</code> unset and run local MLX/Gemma 4 for ITAR/EAR workcells.</div>
+    <div class="note"><strong>Mandatory ISO 13850 Safety &amp; ITAR/EAR Boundary (0 PL/SIL credit):</strong> Deterministic default-deny software pre-flight gate &amp; RFC 8785 SHA-256 audit layer (0 PL/SIL credit) — NEVER a replacement for hardwired ISO 13850 E-stops or ISO 13849-1 safety relays. Keep <code>GRAFT_VAULT_API_KEY</code> unset and run local MLX/Gemma 4 for ITAR/EAR workcells.</div>
   </div>
 
 <script>
 const PLUGIN_VERSION = '0.5.0';
 const CELL_URL = (window.GRAFT_CELL_URL || 'http://127.0.0.1:8785').replace(/\/$/, '');
 const POLL_INTERVAL_MS = 2000;
+const THEME_STORAGE_KEY = 'graft_theme';
 let LIVE_CONNECTED = false;
 let HOLD_LATCHED = false;
 let POLL_IN_FLIGHT = false;
@@ -208,8 +330,109 @@ const FALLBACK_INBOX = [
   }
 ];
 
+const DEMO_ENVELOPE = {
+  embodiment: 'ur5e (demo)',
+  workspace: { min: [-0.70, -0.60, 0.02], max: [0.75, 0.60, 0.92] },
+  exclusions: [
+    { name: 'cnc_spindle_head', min: [0.35, -0.25, 0.55], max: [0.75, 0.25, 0.92] },
+    { name: 'operator_aisle', min: [-0.70, -0.60, 0.00], max: [-0.46, 0.60, 0.92] }
+  ]
+};
+
+const DEMO_MESHES = [
+  { mesh_id: 'lan_lidar_cart_edge', min: [0.22, 0.28, 0.05], max: [0.52, 0.52, 0.45] }
+];
+
+const DEMO_RECEIPTS = [
+  {
+    ts: '2026-11-27T16:12:04Z',
+    event: 'gate.invoke',
+    decision: 'ALLOW',
+    details: { tool: 'arm.move_bounded', reason: 'nominal pick datum within Envelope 0.2' },
+    hash: 'a4c91f8e20b177d3f5a98c12e04b3319'
+  },
+  {
+    ts: '2026-11-27T16:12:19Z',
+    event: 'gate.invoke',
+    decision: 'DENY',
+    details: { tool: 'arm.move_bounded', reason: 'swept path intersects cnc_spindle_head keep-out' },
+    hash: '7e210c4a98f32b10d6c45a8819e2f031'
+  },
+  {
+    ts: '2026-11-27T16:12:41Z',
+    event: 'semantic.check',
+    decision: 'DENY',
+    details: { tool: 'semantic.pour', reason: 'GHS chloramine hazard (bleach + ammonia)' },
+    hash: '3b905f7d12a64e91c82b17d0a54f28c6'
+  }
+];
+
 function esc(s) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function safeGetStorage(key) {
+  try { return window.localStorage ? window.localStorage.getItem(key) : null; } catch (_e) { return null; }
+}
+
+function safeSetStorage(key, val) {
+  try { if (window.localStorage) window.localStorage.setItem(key, val); } catch (_e) { /* sandboxed iframe */ }
+}
+
+function applyTheme(theme) {
+  const prefersDark = Boolean(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.body.classList.remove('night', 'daylight');
+  let active = theme;
+  if (active === 'night') {
+    document.body.classList.add('night');
+  } else if (active === 'daylight') {
+    document.body.classList.add('daylight');
+  } else {
+    active = prefersDark ? 'night' : 'daylight';
+  }
+  const btn = document.getElementById('themeToggle');
+  if (btn) {
+    btn.textContent = active === 'night' ? '☀ Daylight' : '☾ Night-Shift';
+  }
+}
+
+function toggleTheme() {
+  const isNight = document.body.classList.contains('night') ||
+    (!document.body.classList.contains('daylight') && Boolean(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches));
+  const next = isNight ? 'daylight' : 'night';
+  safeSetStorage(THEME_STORAGE_KEY, next);
+  applyTheme(next);
+}
+
+async function copyStartCmd(cmd, btn) {
+  const note = document.getElementById('copyStatusNote');
+  let copied = false;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(cmd);
+      copied = true;
+    }
+  } catch (_e) {
+    copied = false;
+  }
+  if (!copied) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = cmd;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      copied = document.execCommand('copy');
+      ta.remove();
+    } catch (_e2) {
+      copied = false;
+    }
+  }
+  const orig = btn.textContent;
+  btn.textContent = copied ? 'Copied ✓' : 'Select & Copy';
+  if (note) note.textContent = copied ? `Copied: ${cmd}` : `Run: ${cmd}`;
+  setTimeout(() => { btn.textContent = orig; }, 1600);
 }
 
 // MCP Apps sandboxed iframe postMessage JSON-RPC 2.0 bridge fallback
@@ -246,17 +469,187 @@ function callMcpAppBridge(toolName, args = {}, timeoutMs = 4000) {
 
 function renderHold(latched, mode) {
   HOLD_LATCHED = Boolean(latched);
+  const strip = document.getElementById('holdStrip');
+  const demoChip = document.getElementById('holdDemoChip');
+  const demoBr = document.getElementById('holdDemoBr');
   const lbl = document.getElementById('holdLabel');
   const btn = document.getElementById('holdBtn');
+  if (!LIVE_CONNECTED) {
+    strip.classList.add('demo-guard');
+    demoChip.style.display = 'inline-block';
+    demoBr.style.display = 'inline';
+    if (HOLD_LATCHED) {
+      lbl.textContent = '[DEMO SIMULATION] Software HOLD Latch: LATCHED (No Cell Connected)';
+      btn.textContent = 'Simulate Release HOLD (Offline Demo)';
+      btn.className = 'btn moss';
+    } else {
+      lbl.textContent = '[DEMO SIMULATION] Software HOLD Latch: DISENGAGED (No Cell Connected)';
+      btn.textContent = 'Simulate HOLD (Offline Demo — No Cell Connected)';
+      btn.className = 'btn verm';
+    }
+    return;
+  }
+  strip.classList.remove('demo-guard');
+  demoChip.style.display = 'none';
+  demoBr.style.display = 'none';
   if (HOLD_LATCHED) {
-    lbl.textContent = 'Software HOLD Latch: LATCHED (All Motion Blocked · SIM)';
+    lbl.textContent = `Software HOLD Latch: LATCHED (All Motion Blocked · LIVE :8785 · ${String(mode || 'sim').toUpperCase()})`;
     btn.textContent = 'Release HOLD';
     btn.className = 'btn moss';
   } else {
-    lbl.textContent = `Software HOLD Latch: DISENGAGED (${String(mode || 'sim').toUpperCase()})`;
+    lbl.textContent = `Software HOLD Latch: DISENGAGED (LIVE :8785 · ${String(mode || 'sim').toUpperCase()})`;
     btn.textContent = 'Engage HOLD';
     btn.className = 'btn verm';
   }
+}
+
+function renderDriftAlert(st) {
+  const banner = document.getElementById('driftAlertBanner');
+  if (!LIVE_CONNECTED || st.latch_valid !== false) {
+    banner.classList.remove('show');
+    return;
+  }
+  banner.classList.add('show');
+  document.getElementById('driftAlertReason').textContent =
+    st.latch_status || 'ROBOT.md or workspace configuration changed since the last signed gate_receipt.json.';
+  let diffText = '';
+  if (st.fingerprint_diff && typeof st.fingerprint_diff === 'object') {
+    diffText = 'fingerprint_diff: ' + JSON.stringify(st.fingerprint_diff);
+  } else if (typeof st.fingerprint_diff === 'string' && st.fingerprint_diff.trim()) {
+    diffText = 'fingerprint_diff: ' + st.fingerprint_diff;
+  } else {
+    const liveFp = st.live_fingerprint ? String(st.live_fingerprint).slice(0, 16) + '...' : 'unknown';
+    const recFp = st.receipt_fingerprint ? String(st.receipt_fingerprint).slice(0, 16) + '...' : 'none';
+    diffText = `fingerprint_diff: live=${liveFp} != receipt=${recFp}`;
+  }
+  document.getElementById('driftFingerprintDiff').textContent = diffText;
+}
+
+function renderWorkspaceMiniMap(envelope, liveMeshes, isDemo) {
+  const svg = document.getElementById('workspaceSvg');
+  const pill = document.getElementById('mapModePill');
+  const cap = document.getElementById('mapCaption');
+  const env = (envelope && envelope.workspace && envelope.workspace.min && envelope.workspace.max) ? envelope : DEMO_ENVELOPE;
+  const meshes = Array.isArray(liveMeshes) ? liveMeshes : (isDemo ? DEMO_MESHES : []);
+  const exclusions = Array.isArray(env.exclusions) ? env.exclusions : [];
+
+  const bmin = env.workspace.min;
+  const bmax = env.workspace.max;
+  let xMin = Number(bmin[0]), xMax = Number(bmax[0]);
+  let yMin = Number(bmin[1]), yMax = Number(bmax[1]);
+  [...exclusions, ...meshes].forEach(box => {
+    if (box && Array.isArray(box.min) && Array.isArray(box.max)) {
+      xMin = Math.min(xMin, Number(box.min[0]));
+      xMax = Math.max(xMax, Number(box.max[0]));
+      yMin = Math.min(yMin, Number(box.min[1]));
+      yMax = Math.max(yMax, Number(box.max[1]));
+    }
+  });
+  const spanX = Math.max(0.1, xMax - xMin);
+  const spanY = Math.max(0.1, yMax - yMin);
+  const padX = spanX * 0.14;
+  const padY = spanY * 0.16;
+  const vxMin = xMin - padX, vxMax = xMax + padX;
+  const vyMin = yMin - padY, vyMax = yMax + padY;
+
+  const W = 360, H = 160, mL = 24, mR = 14, mT = 12, mB = 18;
+  const pW = W - mL - mR, pH = H - mT - mB;
+  const sx = x => mL + ((x - vxMin) / (vxMax - vxMin)) * pW;
+  const sy = y => mT + (1 - (y - vyMin) / (vyMax - vyMin)) * pH;
+  const rectAttrs = (minA, maxA) => {
+    const x1 = sx(Number(minA[0])), x2 = sx(Number(maxA[0]));
+    const y1 = sy(Number(maxA[1])), y2 = sy(Number(minA[1]));
+    return { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.max(2, Math.abs(x2 - x1)), h: Math.max(2, Math.abs(y2 - y1)) };
+  };
+
+  let parts = [];
+  // Subtle 4x4 grid
+  for (let i = 0; i <= 4; i++) {
+    const gx = mL + (pW * i) / 4;
+    const gy = mT + (pH * i) / 4;
+    parts.push(`<line x1="${gx.toFixed(1)}" y1="${mT}" x2="${gx.toFixed(1)}" y2="${H - mB}" stroke="var(--svg-grid)" stroke-width="1"/>`);
+    parts.push(`<line x1="${mL}" y1="${gy.toFixed(1)}" x2="${W - mR}" y2="${gy.toFixed(1)}" stroke="var(--svg-grid)" stroke-width="1"/>`);
+  }
+
+  // Keep-in envelope rect
+  const wsR = rectAttrs(bmin, bmax);
+  parts.push(`<rect x="${wsR.x.toFixed(1)}" y="${wsR.y.toFixed(1)}" width="${wsR.w.toFixed(1)}" height="${wsR.h.toFixed(1)}" rx="4" fill="var(--moss-bg)" stroke="var(--moss)" stroke-width="1.6" stroke-dasharray="4 3"/>`);
+
+  // Static ROBOT.md exclusions
+  exclusions.forEach(ex => {
+    if (!ex || !Array.isArray(ex.min) || !Array.isArray(ex.max)) return;
+    const r = rectAttrs(ex.min, ex.max);
+    const label = String(ex.name || 'keepout').slice(0, 14);
+    parts.push(`<rect x="${r.x.toFixed(1)}" y="${r.y.toFixed(1)}" width="${r.w.toFixed(1)}" height="${r.h.toFixed(1)}" rx="2" fill="var(--red-bg)" stroke="var(--verm)" stroke-width="1.4"/>`);
+    if (r.w >= 34 && r.h >= 16) {
+      parts.push(`<text x="${(r.x + 3).toFixed(1)}" y="${(r.y + 11).toFixed(1)}" fill="var(--red)" font-size="8.5" font-family="ui-monospace,monospace" font-weight="700">${esc(label)}</text>`);
+    }
+  });
+
+  // Live LAN LiDAR meshes
+  meshes.forEach(ms => {
+    if (!ms || !Array.isArray(ms.min) || !Array.isArray(ms.max)) return;
+    const r = rectAttrs(ms.min, ms.max);
+    const label = String(ms.mesh_id || 'lidar').slice(0, 14);
+    parts.push(`<rect x="${r.x.toFixed(1)}" y="${r.y.toFixed(1)}" width="${r.w.toFixed(1)}" height="${r.h.toFixed(1)}" rx="2" fill="var(--amber-bg)" stroke="var(--amber)" stroke-width="1.5"/>`);
+    if (r.w >= 30 && r.h >= 15) {
+      parts.push(`<text x="${(r.x + 3).toFixed(1)}" y="${(r.y + 11).toFixed(1)}" fill="var(--amber)" font-size="8.5" font-family="ui-monospace,monospace" font-weight="700">${esc(label)}</text>`);
+    }
+  });
+
+  // Robot base origin (0, 0) crosshair
+  const ox = sx(0), oy = sy(0);
+  if (ox >= mL && ox <= W - mR && oy >= mT && oy <= H - mB) {
+    parts.push(`<circle cx="${ox.toFixed(1)}" cy="${oy.toFixed(1)}" r="4.5" fill="var(--ink)" stroke="var(--card)" stroke-width="1.5"/>`);
+    parts.push(`<text x="${(ox + 7).toFixed(1)}" y="${(oy + 3).toFixed(1)}" fill="var(--ink)" font-size="8.5" font-family="ui-monospace,monospace" font-weight="700">BASE(0,0)</text>`);
+  }
+
+  // Axis labels
+  parts.push(`<text x="${mL}" y="${H - 5}" fill="var(--soft)" font-size="8.5" font-family="ui-monospace,monospace">X: [${Number(bmin[0]).toFixed(2)}, ${Number(bmax[0]).toFixed(2)}]m</text>`);
+  parts.push(`<text x="${W - mR}" y="${H - 5}" text-anchor="end" fill="var(--soft)" font-size="8.5" font-family="ui-monospace,monospace">Y: [${Number(bmin[1]).toFixed(2)}, ${Number(bmax[1]).toFixed(2)}]m</text>`);
+
+  svg.innerHTML = parts.join('');
+  pill.textContent = isDemo ? '[DEMO PREVIEW] ur5e' : `LIVE · ${env.embodiment || 'cell'}`;
+  pill.className = isDemo ? 'pill amber' : 'pill';
+  cap.textContent = `${exclusions.length} keep-out(s) · ${meshes.length} live mesh(es)`;
+}
+
+function formatReceiptTime(ts) {
+  const s = String(ts || '');
+  const m = s.match(/T(\d{2}:\d{2}:\d{2})/);
+  if (m) return m[1];
+  return s.slice(0, 8) || '--:--:--';
+}
+
+function renderReceiptTimeline(receipts, isDemo) {
+  const box = document.getElementById('receiptTimeline');
+  const badge = document.getElementById('timelineBadge');
+  const note = document.getElementById('timelineNote');
+  const list = Array.isArray(receipts) ? receipts.slice(-8).reverse() : [];
+  badge.textContent = isDemo ? `[DEMO] ${list.length} sample` : `LIVE · ${list.length} / 8`;
+  badge.className = isDemo ? 'pill amber' : 'pill cobalt';
+  if (!list.length) {
+    box.innerHTML = '<div class="row"><span>No tool-call receipts recorded yet</span><span>READY</span></div>';
+    return;
+  }
+  box.innerHTML = list.map(rec => {
+    const dec = String(rec.decision || 'ALLOW').toUpperCase();
+    const isAllow = dec === 'ALLOW' || dec === 'PASS';
+    const d = (rec.details && typeof rec.details === 'object') ? rec.details : {};
+    const toolName = d.tool || d.action || rec.event || 'gate.event';
+    const reason = d.reason || d.error || d.message || d.pose || d.skill_name || rec.event || 'verified';
+    const sha = String(rec.hash || rec.sha256 || '').slice(0, 10);
+    return `
+      <div class="tl-row">
+        <span class="tl-time">${esc(formatReceiptTime(rec.ts))}</span>
+        <span class="tl-badge ${isAllow ? 'allow' : 'deny'}">${esc(dec)}</span>
+        <span class="tl-detail" title="${esc(toolName + ' — ' + reason)}"><b>${esc(toolName)}</b> · <em>${esc(reason)}</em></span>
+        <span class="tl-sha">${sha ? esc(sha) : '--'}</span>
+      </div>`;
+  }).join('');
+  note.textContent = isDemo
+    ? '[DEMO SIMULATION — NO CELL CONNECTED] Illustrative gate verdicts only. Start :8785 to stream live AI tool calls.'
+    : 'Streaming latest 8 RFC 8785 SHA-256 hash-chained AI tool-call verdicts from :8785.';
 }
 
 function renderInbox(items, rulesCount) {
@@ -264,6 +657,7 @@ function renderInbox(items, rulesCount) {
   pill.textContent = `${items.length} pending`;
   pill.className = items.length ? 'pill amber' : 'pill';
   const box = document.getElementById('ratchetInbox');
+  const btnLabel = LIVE_CONNECTED ? 'Crystallize Rule' : 'Simulate Crystallize [DEMO]';
   if (!items.length) {
     box.innerHTML = '<div class="row"><span>All semantic hazards reviewed</span><span>CLEAR</span></div>';
   } else {
@@ -280,13 +674,39 @@ function renderInbox(items, rulesCount) {
           <div class="inbox-reason">${esc(it.reason)}</div>
           <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap">
             <div>${tags}</div>
-            <button class="btn moss" onclick="crystallizeItem('${esc(it.item_id)}')">Crystallize Rule</button>
+            <button class="btn moss sm" type="button" onclick="crystallizeItem('${esc(it.item_id)}')">${btnLabel}</button>
           </div>
         </div>`;
     }).join('');
   }
+  const prefix = LIVE_CONNECTED ? '' : '[DEMO SIMULATION — NO CELL CONNECTED] ';
   document.getElementById('ratchetStatus').textContent =
-    `${rulesCount} deterministic rule(s) active in SemanticWorldRegistry · RFC 8785 hash-chained.`;
+    `${prefix}${rulesCount} deterministic rule(s) active in SemanticWorldRegistry · RFC 8785 hash-chained.`;
+}
+
+function renderKernelAndWatchdog(st, isDemo) {
+  const kEl = document.getElementById('kernelSummaryRow');
+  const wEl = document.getElementById('watchdogSummaryRow');
+  if (isDemo) {
+    kEl.textContent = 'Ref spec (offline): 1.96 µs slab · 0.0125 ms cached';
+    wEl.textContent = 'Ref spec (offline): 0.22 ms /stop p50 · monotonic';
+    return;
+  }
+  const rk = st.rust_kernel || {};
+  if (rk.active) {
+    kEl.textContent = `ACTIVE · graft-core v${rk.version || '0.x'} (Rust slab)`;
+  } else {
+    kEl.textContent = 'PYTHON FALLBACK (graft-core not compiled)';
+  }
+  const wd = (st.hold_latch && st.hold_latch.watchdog) || {};
+  const wdState = String(wd.state || (st.estop_latched ? 'TRIPPED' : 'LOCAL_HARNESS_ONLY'));
+  if (wd.reachable && wd.heartbeat_age_ms != null) {
+    wEl.textContent = `${wdState} · age ${Math.round(Number(wd.heartbeat_age_ms))} ms / ${wd.timeout_ms || 3000} ms`;
+  } else if (wd.configured && !wd.reachable) {
+    wEl.textContent = `UNREACHABLE (${wd.url || ':8786'}) · fail-closed`;
+  } else {
+    wEl.textContent = `${wdState} · monotonic clock`;
+  }
 }
 
 function renderVaultStatus(vdata) {
@@ -320,11 +740,25 @@ function renderVaultStatus(vdata) {
 function renderState(st) {
   LIVE_CONNECTED = true;
   const pill = document.getElementById('modePill');
-  pill.textContent = `CELL LIVE · v${PLUGIN_VERSION}`;
+  pill.textContent = `LIVE CELL (:8785) · v${PLUGIN_VERSION}`;
   pill.className = 'pill';
   document.getElementById('offlineBanner').classList.remove('show');
+  const liveBanner = document.getElementById('liveCellBanner');
+  liveBanner.classList.add('show');
+  const embName = (st.envelope && st.envelope.embodiment) || (st.trust_ladder && st.trust_ladder.active_robot_id) || 'robot';
+  document.getElementById('liveBannerText').textContent =
+    `Connected to ${embName} (${String(st.mode || 'sim').toUpperCase()}) · ${CELL_URL}`;
+  const latchPill = document.getElementById('liveLatchPill');
+  latchPill.textContent = st.latch_valid ? 'LATCH: VALID' : 'LATCH: INVALID';
+  latchPill.className = st.latch_valid ? 'pill' : 'pill amber';
+
   document.getElementById('pollHeartbeat').textContent = 'LIVE · 2s';
+  document.getElementById('holdFeedback').textContent = '';
+  renderDriftAlert(st);
   renderHold(st.estop_latched, st.mode);
+  renderWorkspaceMiniMap(st.envelope, st.live_meshes, false);
+  renderReceiptTimeline(st.recent_receipts || [], false);
+  renderKernelAndWatchdog(st, false);
 
   const active = (st.trust_ladder && st.trust_ladder.active) || {};
   const lvl = Number(active.level ?? 0);
@@ -353,10 +787,43 @@ function setOfflineDemoState(viaBridge = false) {
   const pill = document.getElementById('modePill');
   pill.textContent = viaBridge ? `MCP BRIDGE · v${PLUGIN_VERSION}` : `OFFLINE DEMO · v${PLUGIN_VERSION}`;
   pill.className = 'pill amber';
+  document.getElementById('liveCellBanner').classList.remove('show');
+  document.getElementById('driftAlertBanner').classList.remove('show');
   document.getElementById('offlineBanner').classList.add('show');
   document.getElementById('pollHeartbeat').textContent = viaBridge ? 'BRIDGE' : 'OFFLINE';
   renderHold(HOLD_LATCHED, 'sim');
+  renderWorkspaceMiniMap(DEMO_ENVELOPE, DEMO_MESHES, true);
+  renderReceiptTimeline(DEMO_RECEIPTS, true);
+  renderKernelAndWatchdog({}, true);
   renderInbox(FALLBACK_INBOX, 5);
+}
+
+async function runGateCheck() {
+  const btn = document.getElementById('runGateCheckBtn');
+  const note = document.getElementById('gateCheckNote');
+  if (!LIVE_CONNECTED) {
+    note.textContent = '[DEMO SIMULATION] Cannot run POST /v1/check while offline.';
+    return;
+  }
+  btn.disabled = true;
+  note.textContent = 'Running 4-stage deterministic pre-flight gate check (POST /v1/check)...';
+  try {
+    const res = await fetch(`${CELL_URL}/v1/check`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ live: false })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || ('HTTP ' + res.status));
+    note.textContent = data.passed
+      ? `Gate Check PASS — signed receipt updated (fingerprint=${String(data.fingerprint || '').slice(0, 12)}...).`
+      : `Gate Check FAILED — inspect ROBOT.md or hardware profile before arming.`;
+    await syncFromCellConsole();
+  } catch (err) {
+    note.textContent = `Gate Check error: ${err && err.message ? err.message : 'request failed'}`;
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 async function refreshVaultStatus() {
@@ -367,7 +834,6 @@ async function refreshVaultStatus() {
     renderVaultStatus(data);
     return;
   } catch (_err) {
-    // Fallback to MCP Apps postMessage JSON-RPC bridge if embedded in sandboxed iframe
     try {
       const bridgeRes = await callMcpAppBridge('graft_vault_status', { limit: 20 });
       const sc = bridgeRes && bridgeRes.structuredContent;
@@ -395,7 +861,13 @@ async function syncFromCellConsole() {
     let bridged = false;
     try {
       const bridgeRes = await callMcpAppBridge('graft_world_model_status', {});
-      if (bridgeRes && bridgeRes.structuredContent) {
+      const sc = bridgeRes && bridgeRes.structuredContent;
+      if (sc && sc.mode === 'live_cell_console') {
+        renderState(sc);
+        await refreshVaultStatus();
+        return;
+      }
+      if (sc) {
         bridged = true;
       }
     } catch (_bridgeErr) {
@@ -451,8 +923,10 @@ async function downloadCompliancePack() {
 }
 
 async function toggleWorkbenchHold() {
+  const fb = document.getElementById('holdFeedback');
   if (!LIVE_CONNECTED) {
     renderHold(!HOLD_LATCHED, 'sim');
+    fb.textContent = `[DEMO SIMULATION] Simulated HOLD ${HOLD_LATCHED ? 'LATCHED' : 'RELEASED'} locally — NO robot cell connected on :8785.`;
     return;
   }
   const path = HOLD_LATCHED ? '/v1/release' : '/v1/hold';
@@ -464,7 +938,9 @@ async function toggleWorkbenchHold() {
       body: JSON.stringify(body)
     });
   } catch (_err) {
+    LIVE_CONNECTED = false;
     renderHold(!HOLD_LATCHED, 'sim');
+    fb.textContent = '[DEMO SIMULATION] Lost connection to :8785 — toggled local demo state only.';
     return;
   }
   await syncFromCellConsole();
@@ -475,6 +951,8 @@ async function crystallizeItem(itemId) {
     const idx = FALLBACK_INBOX.findIndex(x => x.item_id === itemId);
     if (idx >= 0) FALLBACK_INBOX.splice(idx, 1);
     renderInbox(FALLBACK_INBOX, 6);
+    document.getElementById('ratchetStatus').textContent =
+      `[DEMO SIMULATION] Simulated rule crystallization for ${itemId} — NO cell connected on :8785.`;
     return;
   }
   await fetch(`${CELL_URL}/v1/ratchet/approve`, {
@@ -485,6 +963,7 @@ async function crystallizeItem(itemId) {
   await syncFromCellConsole();
 }
 
+applyTheme(safeGetStorage(THEME_STORAGE_KEY));
 syncFromCellConsole();
 setInterval(syncFromCellConsole, POLL_INTERVAL_MS);
 </script>

@@ -27,6 +27,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -205,7 +206,127 @@ def _http_post_json(url: str, payload: dict[str, Any], timeout: float = 15.0) ->
         return None
 
 
+def _http_post_json_status(
+    url: str,
+    payload: dict[str, Any],
+    timeout: float = 15.0,
+) -> tuple[int | None, dict[str, Any] | None]:
+    """POST JSON and return `(http_status, parsed_body)` distinguishing live 4xx/5xx refusals from offline errors."""
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            status = int(getattr(resp, "status", 200))
+            raw = resp.read().decode("utf-8")
+            return status, (json.loads(raw) if raw.strip() else {})
+    except urllib.error.HTTPError as exc:
+        body: dict[str, Any] = {}
+        try:
+            raw_err = exc.read().decode("utf-8")
+            parsed = json.loads(raw_err) if raw_err.strip() else {}
+            body = parsed if isinstance(parsed, dict) else {"detail": raw_err}
+        except Exception:
+            body = {"detail": str(exc)}
+        return int(exc.code), body
+    except Exception:
+        return None, None
+
+
 def _live_or_offline_snapshot() -> dict[str, Any]:
+    # 1. Primary path: Graft Cell Console v1 API (`GET {CELL_CONSOLE_URL}/v1/console/state`)
+    console = _http_get_json(f"{CELL_CONSOLE_URL}/v1/console/state", timeout=1.5)
+    if isinstance(console, dict):
+        envelope = console.get("envelope") or {}
+        sensors_list = console.get("sensors") or []
+        stale_sensors = console.get("stale_sensors") or []
+        live_meshes_list = console.get("live_meshes") or []
+        raw_trust = console.get("trust_ladder") or {}
+        audit_chain = console.get("audit_chain") or {}
+        hold_latch = console.get("hold_latch") or {}
+        recent_receipts = console.get("recent_receipts") or []
+        rust_kernel = console.get("rust_kernel") or {}
+        semantic_ratchet = console.get("semantic_ratchet") or {}
+        end_effectors = console.get("end_effectors") or []
+
+        active_rid = str(
+            raw_trust.get("active_robot_id")
+            or envelope.get("embodiment")
+            or "robot"
+        )
+        active_trust = raw_trust.get("active") or {}
+        robots_map = dict(raw_trust.get("robots") or {})
+        if active_rid and active_rid not in robots_map and active_trust:
+            robots_map[active_rid] = active_trust
+        trust_ladder = {**raw_trust, "robots": robots_map}
+
+        sensors_by_id = {
+            str(s.get("sensor_id") or f"sensor_{idx}"): s
+            for idx, s in enumerate(sensors_list)
+            if isinstance(s, dict)
+        }
+        meshes_by_id = {
+            str(m.get("mesh_id") or f"mesh_{idx}"): m
+            for idx, m in enumerate(live_meshes_list)
+            if isinstance(m, dict)
+        }
+        crystallized_rules = semantic_ratchet.get("crystallized_rules") or []
+        pending_items = semantic_ratchet.get("pending") or []
+
+        estop_latched = bool(console.get("estop_latched", hold_latch.get("latched", False)))
+        latch_valid = bool(console.get("latch_valid", False))
+        cell_mode = str(console.get("mode") or hold_latch.get("mode") or "sim")
+        level_name = str(active_trust.get("level_name") or "L0_OBSERVE")
+        decision = "DENY" if (estop_latched or not latch_valid) else "ALLOW"
+
+        status_text = (
+            f"Live Cell Console ({CELL_CONSOLE_URL}) · embodiment={active_rid} · "
+            f"mode={cell_mode} · trust={level_name} · "
+            f"latch={'VALID' if latch_valid else 'INVALID'} · "
+            f"hold={'LATCHED' if estop_latched else 'CLEAR'}"
+        )
+        return {
+            "mode": "live_cell_console",
+            "cell_mode": cell_mode,
+            "runner_url": CELL_CONSOLE_URL,
+            "cell_console_url": CELL_CONSOLE_URL,
+            "status_text": status_text,
+            "decision": decision,
+            "estop_latched": estop_latched,
+            "latch_valid": latch_valid,
+            "latch_status": console.get("latch_status", ""),
+            "live_fingerprint": console.get("live_fingerprint"),
+            "receipt_fingerprint": console.get("receipt_fingerprint"),
+            "envelope": envelope,
+            "sensors": sensors_list,
+            "stale_sensors": stale_sensors,
+            "live_meshes": live_meshes_list,
+            "trust_ladder": trust_ladder,
+            "audit_chain": audit_chain,
+            "audit_tail_sha256": str(audit_chain.get("head_hash") or ""),
+            "hold_latch": hold_latch,
+            "recent_receipts": recent_receipts,
+            "rust_kernel": rust_kernel,
+            "semantic_ratchet": semantic_ratchet,
+            "end_effectors": end_effectors,
+            "world_model": {
+                "revision": len(crystallized_rules),
+                "known_count": len(crystallized_rules) + len(live_meshes_list),
+                "unknown_count": len(pending_items),
+                "entities": meshes_by_id,
+            },
+            "fusion_model": {
+                "sensors": sensors_by_id,
+                "live_meshes": meshes_by_id,
+                "known_parts": {},
+            },
+            "homepage": "https://graftrobotics.ai",
+        }
+
+    # 2. Legacy fallback: only if `/v1/console/state` is unavailable/404
     live = _http_get_json(f"{LIVE_RUNNER_URL}/state", timeout=1.5)
     if live is not None:
         return {
@@ -236,11 +357,20 @@ def _live_or_offline_snapshot() -> dict[str, Any]:
         pass
     return {
         "mode": "offline_local",
-        "runner_url": LIVE_RUNNER_URL,
-        "status_text": "Offline mode — start sim-shop/live_runner.py or robot-md-gateway serve for live hardware telemetry",
+        "runner_url": CELL_CONSOLE_URL,
+        "cell_console_url": CELL_CONSOLE_URL,
+        "status_text": "Offline mode — run `uvx robot-gate serve --dir . --port 8785` or `uvx robot-gate demo` for live hardware telemetry",
         "decision": "ALLOW",
         "bounded_embodiment_version": be_ver,
         "rust_graft_core_version": rust_ver,
+        "rust_kernel": {"active": rust_ver is not None, "version": rust_ver},
+        "envelope": {},
+        "sensors": [],
+        "live_meshes": [],
+        "audit_chain": {"valid": True, "record_count": 0, "head_hash": ""},
+        "hold_latch": {"latched": False, "mode": "offline_local", "is_hardware_estop": False},
+        "recent_receipts": [],
+        "latch_valid": False,
         "world_model": {"revision": 0, "known_count": 0, "unknown_count": 0, "entities": {}},
         "fusion_model": {"sensors": {}, "live_meshes": {}, "known_parts": {}},
         "trust_ladder": {"robots": {}},
@@ -1166,7 +1296,10 @@ def graft_ingest_lan_lidar(
     if live:
         m = live.get("mesh") or {}
         return _result(f"Ingested LAN LiDAR '{sensor_id}' -> live mesh '{mesh_id}' ({m.get('face_count', 0)} triangles) active in MuJoCo 4.0.", live)
-    return _result("Live runner offline; start sim-shop/live_runner.py to push live LAN LiDAR meshes.", {"ok": False})
+    return _result(
+        "Cell console offline — run `uvx robot-gate serve --dir . --port 8785` or `uvx robot-gate demo` to push live LAN LiDAR meshes.",
+        {"ok": False, "cell_console_url": CELL_CONSOLE_URL},
+    )
 
 
 @mcp.tool(name="graft_trust_ladder", title="Trust & Skill Graduation Ladder", meta=INLINE_META)
@@ -1221,6 +1354,34 @@ async def graft_trust_ladder(
                 },
             )
 
+        # Primary path: Graft Cell Console v1 API (`POST {CELL_CONSOLE_URL}/v1/trust/promote`)
+        v1_status, v1_body = _http_post_json_status(
+            f"{CELL_CONSOLE_URL}/v1/trust/promote",
+            {
+                "robot_id": robot_id,
+                "operator": operator,
+                "hardware_estop_verified": True,
+                "operator_signoff": True,
+            },
+        )
+        if v1_status is not None and 200 <= v1_status < 300 and isinstance(v1_body, dict):
+            out = {**v1_body, "promoted": True, "endpoint": f"{CELL_CONSOLE_URL}/v1/trust/promote"}
+            return _result(f"Trust promotion for {robot_id} (operator={operator}) via Cell Console: {out}", out)
+        if v1_status is not None and v1_status != 404:
+            detail = (v1_body or {}).get("detail") or (v1_body or {}).get("error") or f"HTTP {v1_status}"
+            return _result(
+                f"Trust promotion DENIED by Cell Console ({v1_status}) for '{robot_id}': {detail}",
+                {
+                    "promoted": False,
+                    "fail_closed": True,
+                    "http_status": v1_status,
+                    "error": detail,
+                    "robot_id": robot_id,
+                    "endpoint": f"{CELL_CONSOLE_URL}/v1/trust/promote",
+                },
+            )
+
+        # Legacy fallback when Cell Console :8785 is offline / 404
         res = _http_post_json(
             f"{LIVE_RUNNER_URL}/mcp",
             {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "promote_trust", "arguments": {"actor": robot_id, "operator": operator}}},
@@ -1307,18 +1468,28 @@ async def graft_check_semantic_action(
         if e_action == "accept" and e_data is not None:
             out["operator_elicitation"] = e_data.model_dump()
             if e_data.ratchet_into_world_model and e_data.confirmed_object_tag:
-                _http_post_json(
-                    f"{LIVE_RUNNER_URL}/mcp",
+                v1_status, _ = _http_post_json_status(
+                    f"{CELL_CONSOLE_URL}/v1/ratchet/approve",
                     {
-                        "jsonrpc": "2.0",
-                        "id": 1,
-                        "method": "tools/call",
-                        "params": {
-                            "name": "ratchet_semantic_tag",
-                            "arguments": {"object_id": source_object_id, "tags": [e_data.confirmed_object_tag], "note": "Ratcheted via MCP Elicitation"},
-                        },
+                        "object_id": source_object_id,
+                        "tags": [e_data.confirmed_object_tag],
+                        "operator": "mcp_elicitation",
+                        "note": "Ratcheted via MCP Elicitation",
                     },
                 )
+                if v1_status is None or v1_status == 404:
+                    _http_post_json(
+                        f"{LIVE_RUNNER_URL}/mcp",
+                        {
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "tools/call",
+                            "params": {
+                                "name": "ratchet_semantic_tag",
+                                "arguments": {"object_id": source_object_id, "tags": [e_data.confirmed_object_tag], "note": "Ratcheted via MCP Elicitation"},
+                            },
+                        },
+                    )
 
     return _result(
         f"Semantic Guard [{out['decision']}] ({out['tier_triggered']}): {'; '.join(out.get('reasons', []))}",
@@ -1333,6 +1504,31 @@ def graft_ratchet_semantic_tag(
     note: str = "Operator-confirmed hazard tag",
 ) -> types.CallToolResult:
     """Persist a newly discovered semantic hazard tag into the signed World Model so future checks enforce it deterministically with zero VLM latency."""
+    # Primary path: Graft Cell Console v1 API (`POST {CELL_CONSOLE_URL}/v1/ratchet/approve`)
+    v1_status, v1_body = _http_post_json_status(
+        f"{CELL_CONSOLE_URL}/v1/ratchet/approve",
+        {
+            "object_id": object_id,
+            "tags": tags,
+            "operator": "mcp_operator",
+            "note": note,
+        },
+    )
+    if v1_status is not None and 200 <= v1_status < 300 and isinstance(v1_body, dict):
+        cryst = v1_body.get("crystallized") or []
+        first_sha = cryst[0].get("sha256", "") if cryst and isinstance(cryst[0], dict) else ""
+        sha = str(first_sha or v1_body.get("registry_head_sha256") or "")
+        out = {
+            **v1_body,
+            "ratcheted": True,
+            "object_id": object_id,
+            "tags": tags,
+            "sha256": sha,
+            "endpoint": f"{CELL_CONSOLE_URL}/v1/ratchet/approve",
+        }
+        return _result(f"Ratcheted '{object_id}' += {tags} via Cell Console (sha256={sha[:16]}...)", out)
+
+    # Legacy fallback when Cell Console :8785 is offline / 404
     live = _http_post_json(
         f"{LIVE_RUNNER_URL}/mcp",
         {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "ratchet_semantic_tag", "arguments": {"object_id": object_id, "tags": tags, "note": note}}},
