@@ -75,8 +75,16 @@ if _WORKSPACE_DIR is not None:
 
 APP_URI = "ui://graft-robotics/workbench.html"
 HTML_PATH = Path(os.environ.get("GRAFT_ROBOTICS_APP_HTML", Path(__file__).with_name("workbench.html")))
-CELL_CONSOLE_URL = os.environ.get("GRAFT_CELL_URL", "http://127.0.0.1:8785").rstrip("/")
-LIVE_RUNNER_URL = os.environ.get("GRAFT_LIVE_RUNNER_URL", "http://127.0.0.1:8791").rstrip("/")
+CELL_CONSOLE_URL = (
+    os.environ.get("GRAFT_CELL_URL")
+    or os.environ.get("GRAFT_API_URL")
+    or "http://127.0.0.1:8785"
+).rstrip("/")
+LIVE_RUNNER_URL = (
+    os.environ.get("GRAFT_LIVE_RUNNER_URL")
+    or os.environ.get("GRAFT_API_URL")
+    or CELL_CONSOLE_URL
+).rstrip("/")
 BENCHMARKS_DIR = Path(
     os.environ.get(
         "GRAFT_BENCHMARKS_DIR",
@@ -274,8 +282,8 @@ def _build_bundle_recommendation(llm_provider: str, budget_tier: str, hardware_t
             "openai_compatible_url": "http://<mac-mini-lan-ip>:11434/v1",
             "model": mlx_model,
             "vlm_semantic_critic": "local_apple_mlx_veto_only",
-            "gateway_url": "http://<robot-pi5-ip>:8080",
-            "lan_sensors_ingest": "POST http://<robot-pi5-ip>:8791/sensors/ingest",
+            "gateway_url": "http://<robot-pi5-ip>:8785",
+            "lan_sensors_ingest": "POST http://<robot-pi5-ip>:8785/sensors/ingest",
         }
     elif llm in ("google_gemma4", "gemma4", "gemma", "litert", "litert-lm", "google-local"):
         profile = "google-gemma4-edge"
@@ -290,8 +298,8 @@ def _build_bundle_recommendation(llm_provider: str, budget_tier: str, hardware_t
             "ollama_url": "http://127.0.0.1:11434",
             "model": gemma_model,
             "vlm_semantic_critic": "local_gemma4_multimodal_veto_only",
-            "gateway_url": "http://127.0.0.1:8080",
-            "lan_sensors_ingest": "POST http://<robot-ip>:8791/sensors/ingest",
+            "gateway_url": "http://127.0.0.1:8785",
+            "lan_sensors_ingest": "POST http://<robot-ip>:8785/sensors/ingest",
         }
     elif llm in ("onprem", "on-prem", "ollama", "airgapped", "local") or budget in ("airgapped", "zero", "$0", "0"):
         profile = "onprem-airgapped"
@@ -304,8 +312,8 @@ def _build_bundle_recommendation(llm_provider: str, budget_tier: str, hardware_t
             "mode": "offline_on_premises",
             "ollama_url": "http://127.0.0.1:11434",
             "model": "qwen3.5:4b",
-            "gateway_url": "http://127.0.0.1:8080",
-            "lan_sensors_ingest": "POST http://<robot-ip>:8791/sensors/ingest",
+            "gateway_url": "http://127.0.0.1:8785",
+            "lan_sensors_ingest": "POST http://<robot-ip>:8785/sensors/ingest",
         }
     elif llm in ("antigravity", "agy", "google"):
         profile = "antigravity"
@@ -371,7 +379,7 @@ def _build_bundle_recommendation(llm_provider: str, budget_tier: str, hardware_t
             f"# pip fallback: {pip_cmd}",
             "robot-md-gateway init --yes",
             "robot-md-gateway list-actuators",
-            "robot-md-gateway serve --robot-md ./ROBOT.md --bearers ./bearers.yaml --port 8080",
+            "robot-md-gateway serve --robot-md ./ROBOT.md --bearers ./bearers.yaml --port 8785",
             *llm_setup,
         ],
         "client_config": client_config,
@@ -1036,7 +1044,7 @@ def prompt_ros2_compliance_audit(
         f"3. Run the 4-stage deterministic pre-flight gate (`robot-gate check --dir '{workspace_dir}' --sim-only`) to emit a signed `gate_receipt.json` matching the live workspace fingerprint.\n"
         f"4. Call `graft_generate_compliance_pack(workspace_dir='{workspace_dir}')` (or `robot-gate compliance-pack --dir '{workspace_dir}' --verify`) and confirm `valid=True` with 0 private keys / 0 `.pem` files.\n"
         f"5. Call `graft_vault_status(robot_id='{embodiment}', limit=20)` — verify zero phone-home when `GRAFT_VAULT_API_KEY` is unset, or review drift alerts after an opt-in `robot-gate vault push` (non-ITAR/EAR cells only).\n"
-        f"6. Wire `./scripts/cloudflare-build.sh` into Cloudflare Pages/Workers CI/CD (Zero GitHub Actions)."
+        f"6. Wire `robot-gate/ci/cloudflare-build.sh` into Cloudflare Pages/Workers CI/CD (Zero GitHub Actions)."
     )
 
 

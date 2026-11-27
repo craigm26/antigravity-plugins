@@ -17,7 +17,7 @@ Graft puts a deterministic, default-deny software pre-flight boundary (`graft-co
 - **`graft_vault_status(robot_id, limit)`:** Queries the opt-in Cloudflare D1 Hosted Fleet Vault for compliance receipts and drift alerts — strictly zero phone-home (`offline: true`, 0 network calls) when `GRAFT_VAULT_API_KEY` is unset.
 
 ## Self-Serve Remote Shop Onboarding & ROS 2 Compliance Audit
-- **Slash Command & MCP Prompt (`/ros2-compliance-audit` · `ros2-compliance-audit`):** Guides teams end-to-end through `ros2-bridge` -> `check` -> `compliance-pack --verify` -> opt-in `vault push` -> Cloudflare-only `./scripts/cloudflare-build.sh` (**Zero GitHub Actions**).
+- **Slash Command & MCP Prompt (`/ros2-compliance-audit` · `ros2-compliance-audit`):** Guides teams end-to-end through `ros2-bridge` -> `check` -> `compliance-pack --verify` -> opt-in `vault push` -> Cloudflare-only `robot-gate/ci/cloudflare-build.sh` (**Zero GitHub Actions**).
 - **Slash Command & MCP Prompt (`/remote-shop-onboarding` · `remote-shop-onboarding`):** Plain-English Remote Shop Onboarding Specialist across 5 tracks (`cnc`, `lab`, `oem`, `benchtop`, `ehs`) with 6-family Hand HAL selection and a 48-hour zero-motion `L0 OBSERVE` shadow trial.
 - **Companion Surfaces:** [https://graftrobotics.ai/connect/](https://graftrobotics.ai/connect/), [https://graftrobotics.ai/compliance/](https://graftrobotics.ai/compliance/), [https://graftrobotics.ai/vault/](https://graftrobotics.ai/vault/), and [https://graftrobotics.ai/onboard/](https://graftrobotics.ai/onboard/).
 

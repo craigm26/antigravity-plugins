@@ -37,7 +37,7 @@ Guide the robotics team through a complete, offline-verifiable **Wedge A-Upmarke
 
 1. Call `graft_vault_status(limit=20)` (or check the **Vault Drift Status** badge in the Graft Workbench hitting `GET http://127.0.0.1:8785/v1/vault/status`).
 2. If `GRAFT_VAULT_API_KEY` is **unset**, confirm the offline zero-phone-home status (`offline: true`, zero network calls).
-3. Only for non-ITAR/EAR teams who explicitly opt in to 5-year Cloudflare D1 retention:
+3. Only for non-ITAR/EAR teams who explicitly opt in to 5-year active Cloudflare D1 Fleet Vault retention (+ 10-year offline-verifiable compliance archive export for EU 2023/1230 Annex IV):
    ```bash
    export GRAFT_VAULT_API_KEY="<your-vault-key>"
    robot-gate vault push --dir .
@@ -48,6 +48,6 @@ Guide the robotics team through a complete, offline-verifiable **Wedge A-Upmarke
 
 Wire the deterministic compliance & test gate directly into your Cloudflare Pages/Workers build pipeline (zero GitHub Actions required):
 ```bash
-./scripts/cloudflare-build.sh
+bash ./robot-gate/ci/cloudflare-build.sh
 ```
 Confirm every change to `ROBOT.md`, `skills/`, or `policies/` re-runs `robot-gate check --sim-only` and `robot-gate compliance-pack --verify` before release.
